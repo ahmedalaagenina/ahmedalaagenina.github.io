@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:mycv/theme/theme.dart';
 
@@ -67,8 +68,8 @@ class _GlassmorphicCardState extends State<GlassmorphicCard> {
                     color: _isHovered
                         ? glow.withValues(alpha: isDark ? 0.5 : 0.4)
                         : isDark
-                            ? Colors.white.withValues(alpha: 0.08)
-                            : appTheme.colors.outlineVariant.withValues(alpha: 0.5),
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : appTheme.colors.outlineVariant.withValues(alpha: 0.5),
                     width: _isHovered ? 1.5 : 1.0,
                   ),
                   boxShadow: [

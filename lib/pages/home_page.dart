@@ -20,7 +20,9 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: appTheme.colors.background,
       body: AnimatedBackground(
-        child: SingleChildScrollView(
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: SingleChildScrollView(
           child: MaxWidthContainer(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 40.0),
@@ -112,6 +114,7 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
+          ),
           ),
         ),
       ),

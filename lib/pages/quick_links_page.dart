@@ -30,7 +30,9 @@ class QuickLinksPage extends StatelessWidget {
       body: AnimatedBackground(
         child: SafeArea(
           child: Center(
-            child: SingleChildScrollView(
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+              child: SingleChildScrollView(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 480),
                 child: Padding(
@@ -187,6 +189,7 @@ class QuickLinksPage extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
             ),
           ),
         ),
