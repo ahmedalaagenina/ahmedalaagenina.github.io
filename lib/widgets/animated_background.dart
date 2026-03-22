@@ -59,11 +59,12 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
             const Color(0xFFA855F7).withValues(alpha: 0.05),
           ]
         : [
-            const Color(0xFF30B8F6).withValues(alpha: 0.05),
-            const Color(0xFF6366F1).withValues(alpha: 0.04),
-            const Color(0xFF8B5CF6).withValues(alpha: 0.03),
-            const Color(0xFF06B6D4).withValues(alpha: 0.04),
-            const Color(0xFF3B82F6).withValues(alpha: 0.03),
+            // Light mode: softer, more pastel-blue tints
+            const Color(0xFF0553B1).withValues(alpha: 0.06),
+            const Color(0xFF6366F1).withValues(alpha: 0.05),
+            const Color(0xFF8B5CF6).withValues(alpha: 0.04),
+            const Color(0xFF0EA5E9).withValues(alpha: 0.06),
+            const Color(0xFF3B82F6).withValues(alpha: 0.04),
             const Color(0xFFA855F7).withValues(alpha: 0.03),
           ];
 
@@ -82,8 +83,8 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
                       const Color(0xFF0B0F19),
                     ]
                   : [
-                      appTheme.colors.background,
-                      const Color(0xFFF1F5F9),
+                      const Color(0xFFF8FAFC),
+                      const Color(0xFFF0F4FF),
                       const Color(0xFFEEF2FF),
                     ],
             ),

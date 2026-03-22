@@ -36,9 +36,6 @@ class _GlassmorphicCardState extends State<GlassmorphicCard> {
     final appTheme = context.appTheme;
     final isDark = context.isDarkMode;
     final glow = widget.glowColor ?? appTheme.colors.primary;
-
-    final bgOpacity = isDark ? 0.08 : 0.55;
-    final borderOpacity = _isHovered ? 0.5 : 0.1;
     final scale = _isHovered && widget.enableHover ? 1.02 : 1.0;
 
     return MouseRegion(
@@ -62,40 +59,41 @@ class _GlassmorphicCardState extends State<GlassmorphicCard> {
                 duration: const Duration(milliseconds: 300),
                 padding: widget.padding,
                 decoration: BoxDecoration(
-                  // Gradient background for premium feel
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: isDark
-                        ? [
-                            Colors.white.withValues(alpha: bgOpacity + 0.02),
-                            Colors.white.withValues(alpha: bgOpacity),
-                          ]
-                        : [
-                            appTheme.colors.surface.withValues(alpha: bgOpacity + 0.1),
-                            appTheme.colors.surface.withValues(alpha: bgOpacity),
-                          ],
-                  ),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.white.withValues(alpha: 0.85),
                   borderRadius: widget.borderRadius,
                   border: Border.all(
                     color: _isHovered
-                        ? glow.withValues(alpha: borderOpacity)
-                        : (isDark ? Colors.white : appTheme.colors.outline).withValues(alpha: 0.08),
+                        ? glow.withValues(alpha: isDark ? 0.5 : 0.4)
+                        : isDark
+                            ? Colors.white.withValues(alpha: 0.08)
+                            : appTheme.colors.outlineVariant.withValues(alpha: 0.5),
                     width: _isHovered ? 1.5 : 1.0,
                   ),
                   boxShadow: [
-                    // Outer glow
+                    // Outer glow on hover
+                    if (_isHovered)
+                      BoxShadow(
+                        color: glow.withValues(alpha: isDark ? 0.2 : 0.12),
+                        blurRadius: 28,
+                        spreadRadius: 2,
+                      ),
+                    // Depth shadow — stronger in light mode
                     BoxShadow(
-                      color: glow.withValues(alpha: _isHovered ? 0.2 : 0.0),
-                      blurRadius: 28,
-                      spreadRadius: 2,
+                      color: isDark
+                          ? Colors.black.withValues(alpha: 0.3)
+                          : Colors.black.withValues(alpha: 0.06),
+                      blurRadius: isDark ? 16 : 24,
+                      offset: const Offset(0, 6),
                     ),
-                    // Subtle depth shadow
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
+                    // Light mode extra soft shadow
+                    if (!isDark)
+                      BoxShadow(
+                        color: appTheme.colors.primary.withValues(alpha: 0.04),
+                        blurRadius: 40,
+                        offset: const Offset(0, 12),
+                      ),
                   ],
                 ),
                 child: widget.child,

@@ -343,28 +343,38 @@ class _HeroContactChipState extends State<_HeroContactChip> {
             gradient: _isHovered
                 ? LinearGradient(
                     colors: [
-                      appTheme.colors.primary.withValues(alpha: 0.2),
-                      const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+                      appTheme.colors.primary.withValues(alpha: isDark ? 0.2 : 0.12),
+                      const Color(0xFF8B5CF6).withValues(alpha: isDark ? 0.12 : 0.06),
                     ],
                   )
                 : null,
             color: _isHovered
                 ? null
-                : (isDark ? Colors.white : appTheme.colors.primary).withValues(alpha: 0.05),
+                : isDark
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : appTheme.colors.primary.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: _isHovered
                   ? appTheme.colors.primary.withValues(alpha: 0.5)
-                  : (isDark ? Colors.white : appTheme.colors.primary).withValues(alpha: 0.1),
+                  : isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : appTheme.colors.outlineVariant.withValues(alpha: 0.6),
             ),
             boxShadow: _isHovered
                 ? [
                     BoxShadow(
-                      color: appTheme.colors.primary.withValues(alpha: 0.15),
+                      color: appTheme.colors.primary.withValues(alpha: isDark ? 0.15 : 0.1),
                       blurRadius: 12,
                     ),
                   ]
-                : [],
+                : isDark ? [] : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

@@ -155,13 +155,24 @@ class _ActionChipState extends State<_ActionChip> {
           decoration: BoxDecoration(
             color: _isHovered
                 ? widget.appTheme.colors.primary.withValues(alpha: 0.12)
-                : (isDark ? Colors.white : widget.appTheme.colors.primary).withValues(alpha: 0.05),
+                : isDark
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : widget.appTheme.colors.primary.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: _isHovered
                   ? widget.appTheme.colors.primary.withValues(alpha: 0.4)
-                  : (isDark ? Colors.white : widget.appTheme.colors.primary).withValues(alpha: 0.08),
+                  : isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : widget.appTheme.colors.outlineVariant.withValues(alpha: 0.6),
             ),
+            boxShadow: isDark ? [] : [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

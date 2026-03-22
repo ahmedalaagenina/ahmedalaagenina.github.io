@@ -363,6 +363,15 @@ class _ProjectSubCardState extends State<_ProjectSubCard> {
     });
   }
 
+  Matrix4 _buildTransform() {
+    final s = _isHovered ? 1.03 : 1.0;
+    final m = Matrix4.identity()
+      ..setEntry(3, 2, 0.001)
+      ..rotateX(_rotateX)
+      ..rotateY(_rotateY);
+    return m..multiply(Matrix4.diagonal3Values(s, s, s));
+  }
+
   @override
   Widget build(BuildContext context) {
     final appTheme = context.appTheme;
@@ -380,11 +389,7 @@ class _ProjectSubCardState extends State<_ProjectSubCard> {
           onHover: (e) => _onHover(e, constraints),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.001)
-              ..rotateX(_rotateX)
-              ..rotateY(_rotateY)
-              ..scale(_isHovered ? 1.03 : 1.0),
+            transform: _buildTransform(),
             transformAlignment: Alignment.center,
             width: 280,
             padding: const EdgeInsets.all(16),
@@ -401,12 +406,16 @@ class _ProjectSubCardState extends State<_ProjectSubCard> {
                   : null,
               color: _isHovered
                   ? null
-                  : (isDark ? Colors.white : appTheme.colors.surfaceVariant).withValues(alpha: isDark ? 0.05 : 0.3),
+                  : isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : appTheme.colors.surfaceVariant.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: _isHovered
                     ? appTheme.colors.primary.withValues(alpha: 0.5)
-                    : (isDark ? Colors.white : appTheme.colors.outlineVariant).withValues(alpha: 0.1),
+                    : isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : appTheme.colors.outlineVariant.withValues(alpha: 0.5),
               ),
               boxShadow: _isHovered
                   ? [

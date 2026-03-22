@@ -139,28 +139,38 @@ class _SkillChipState extends State<_SkillChip> {
           gradient: _isHovered
               ? LinearGradient(
                   colors: [
-                    appTheme.colors.primary.withValues(alpha: 0.2),
-                    const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+                    appTheme.colors.primary.withValues(alpha: isDark ? 0.2 : 0.12),
+                    const Color(0xFF8B5CF6).withValues(alpha: isDark ? 0.12 : 0.06),
                   ],
                 )
               : null,
           color: _isHovered
               ? null
-              : (isDark ? Colors.white : appTheme.colors.primary).withValues(alpha: 0.05),
+              : isDark
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : appTheme.colors.primary.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: _isHovered
                 ? appTheme.colors.primary.withValues(alpha: 0.5)
-                : (isDark ? Colors.white : appTheme.colors.primary).withValues(alpha: 0.1),
+                : isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : appTheme.colors.outlineVariant.withValues(alpha: 0.6),
           ),
           boxShadow: _isHovered
               ? [
                   BoxShadow(
-                    color: appTheme.colors.primary.withValues(alpha: 0.1),
+                    color: appTheme.colors.primary.withValues(alpha: isDark ? 0.1 : 0.08),
                     blurRadius: 8,
                   ),
                 ]
-              : [],
+              : isDark ? [] : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
         ),
         child: Text(
           widget.skill,
