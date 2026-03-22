@@ -21,6 +21,63 @@ class QuickLinksPage extends StatelessWidget {
     }
   }
 
+  void _showPhoneDialog(BuildContext context, {required String action}) {
+    final appTheme = context.appTheme;
+    final isDark = context.isDarkMode;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1A1F2E) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Color(0xFF30B8F6), Color(0xFF8B5CF6)],
+          ).createShader(bounds),
+          child: Text(
+            'Choose Number',
+            style: appTheme.typography.titleMedium.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _PhoneOptionTile(
+              flag: '🇸🇦',
+              country: 'Saudi Arabia',
+              number: CVData.phoneKsa,
+              onTap: () {
+                Navigator.pop(ctx);
+                if (action == 'whatsapp') {
+                  _launchUrl('https://wa.me/${CVData.phoneKsa.replaceAll('+', '')}');
+                } else {
+                  _launchUrl('tel:${CVData.phoneKsa}');
+                }
+              },
+            ),
+            const SizedBox(height: 10),
+            _PhoneOptionTile(
+              flag: '🇪🇬',
+              country: 'Egypt',
+              number: CVData.phoneEg,
+              onTap: () {
+                Navigator.pop(ctx);
+                if (action == 'whatsapp') {
+                  _launchUrl('https://wa.me/${CVData.phoneEg.replaceAll('+', '')}');
+                } else {
+                  _launchUrl('tel:${CVData.phoneEg}');
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appTheme = context.appTheme;
@@ -133,7 +190,7 @@ class QuickLinksPage extends StatelessWidget {
                             icon: FontAwesomeIcons.whatsapp,
                             label: 'Chat on WhatsApp',
                             gradientColors: const [Color(0xFF25D366), Color(0xFF128C7E)],
-                            onTap: () => _launchUrl('https://wa.me/${CVData.phone.replaceAll('+', '')}'),
+                            onTap: () => _showPhoneDialog(context, action: 'whatsapp'),
                           ),
                           const SizedBox(height: 14),
                           _PremiumLinkCard(
@@ -590,6 +647,104 @@ class _FullPortfolioButtonState extends State<_FullPortfolioButton>
                 ),
               );
             },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Premium phone option tile for the country selection dialog.
+class _PhoneOptionTile extends StatefulWidget {
+  final String flag;
+  final String country;
+  final String number;
+  final VoidCallback onTap;
+
+  const _PhoneOptionTile({
+    required this.flag,
+    required this.country,
+    required this.number,
+    required this.onTap,
+  });
+
+  @override
+  State<_PhoneOptionTile> createState() => _PhoneOptionTileState();
+}
+
+class _PhoneOptionTileState extends State<_PhoneOptionTile> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final appTheme = context.appTheme;
+    final isDark = context.isDarkMode;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            gradient: _isHovered
+                ? LinearGradient(
+                    colors: [
+                      appTheme.colors.primary.withValues(alpha: isDark ? 0.15 : 0.08),
+                      const Color(0xFF8B5CF6).withValues(alpha: isDark ? 0.08 : 0.04),
+                    ],
+                  )
+                : null,
+            color: _isHovered
+                ? null
+                : isDark
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : appTheme.colors.primary.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: _isHovered
+                  ? appTheme.colors.primary.withValues(alpha: 0.5)
+                  : isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : appTheme.colors.outlineVariant.withValues(alpha: 0.5),
+            ),
+          ),
+          child: Row(
+            children: [
+              Text(widget.flag, style: const TextStyle(fontSize: 28)),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.country,
+                      style: appTheme.typography.titleSmall.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: appTheme.colors.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.number,
+                      style: appTheme.typography.bodySmall.copyWith(
+                        color: appTheme.colors.onSurfaceVariant,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: _isHovered
+                    ? appTheme.colors.primary
+                    : appTheme.colors.onSurfaceVariant,
+              ),
+            ],
           ),
         ),
       ),

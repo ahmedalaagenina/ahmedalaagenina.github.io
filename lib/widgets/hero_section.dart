@@ -18,6 +18,63 @@ class HeroSection extends StatelessWidget {
     }
   }
 
+  void _showPhoneDialog(BuildContext context, {required String action}) {
+    final appTheme = context.appTheme;
+    final isDark = context.isDarkMode;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1A1F2E) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Color(0xFF30B8F6), Color(0xFF8B5CF6)],
+          ).createShader(bounds),
+          child: Text(
+            'Choose Number',
+            style: appTheme.typography.titleMedium.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _PhoneOption(
+              flag: '🇸🇦',
+              country: 'Saudi Arabia',
+              number: CVData.phoneKsa,
+              onTap: () {
+                Navigator.pop(ctx);
+                if (action == 'call') {
+                  _launchUrl('tel:${CVData.phoneKsa}');
+                } else {
+                  _launchUrl('https://wa.me/${CVData.phoneKsa.replaceAll('+', '')}');
+                }
+              },
+            ),
+            const SizedBox(height: 10),
+            _PhoneOption(
+              flag: '🇪🇬',
+              country: 'Egypt',
+              number: CVData.phoneEg,
+              onTap: () {
+                Navigator.pop(ctx);
+                if (action == 'call') {
+                  _launchUrl('tel:${CVData.phoneEg}');
+                } else {
+                  _launchUrl('https://wa.me/${CVData.phoneEg.replaceAll('+', '')}');
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appTheme = context.appTheme;
@@ -121,7 +178,7 @@ class HeroSection extends StatelessWidget {
         _HeroContactChip(
           icon: Icons.phone_outlined,
           label: 'Phone',
-          onTap: () => _launchUrl('tel:${CVData.phone}'),
+          onTap: () => _showPhoneDialog(context, action: 'call'),
         ),
         _HeroContactChip(
           icon: FontAwesomeIcons.linkedin,
@@ -387,6 +444,104 @@ class _HeroContactChipState extends State<_HeroContactChip> {
                   color: _isHovered ? appTheme.colors.primary : appTheme.colors.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Premium phone number option tile for the dialog.
+class _PhoneOption extends StatefulWidget {
+  final String flag;
+  final String country;
+  final String number;
+  final VoidCallback onTap;
+
+  const _PhoneOption({
+    required this.flag,
+    required this.country,
+    required this.number,
+    required this.onTap,
+  });
+
+  @override
+  State<_PhoneOption> createState() => _PhoneOptionState();
+}
+
+class _PhoneOptionState extends State<_PhoneOption> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final appTheme = context.appTheme;
+    final isDark = context.isDarkMode;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            gradient: _isHovered
+                ? LinearGradient(
+                    colors: [
+                      appTheme.colors.primary.withValues(alpha: isDark ? 0.15 : 0.08),
+                      const Color(0xFF8B5CF6).withValues(alpha: isDark ? 0.08 : 0.04),
+                    ],
+                  )
+                : null,
+            color: _isHovered
+                ? null
+                : isDark
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : appTheme.colors.primary.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: _isHovered
+                  ? appTheme.colors.primary.withValues(alpha: 0.5)
+                  : isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : appTheme.colors.outlineVariant.withValues(alpha: 0.5),
+            ),
+          ),
+          child: Row(
+            children: [
+              Text(widget.flag, style: const TextStyle(fontSize: 28)),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.country,
+                      style: appTheme.typography.titleSmall.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: appTheme.colors.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.number,
+                      style: appTheme.typography.bodySmall.copyWith(
+                        color: appTheme.colors.onSurfaceVariant,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: _isHovered
+                    ? appTheme.colors.primary
+                    : appTheme.colors.onSurfaceVariant,
               ),
             ],
           ),

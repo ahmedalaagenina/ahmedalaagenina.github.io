@@ -81,7 +81,8 @@ class CVData {
   static const String name = 'Ahmed AlaaEldin Atia';
   static const String title = 'Senior Mobile Engineer (Flutter | Android)';
   static const String location = 'Saudi Arabia';
-  static const String phone = '+966508509042';
+  static const String phoneKsa = '+966508509042';
+  static const String phoneEg = '+201096796900';
   static const String email = 'ahmedalaagenina@gmail.com';
 
   static const String linkedinUrl =
@@ -89,14 +90,10 @@ class CVData {
   static const String githubUrl = 'https://github.com/AhmedAlaaGenina';
 
   static const String briefBio =
-      'Crafting scalable mobile experiences and offline-first systems. '
-      '6+ years of experience & 17+ production apps delivered across diverse industries.';
+      'Architecting high-scale mobile ecosystems with Flutter & Android. 6+ years of engineering excellence across 17+ production apps.';
 
   static const String summary =
-      'Senior Mobile Engineer with 6+ years of experience and a proven track record '
-      'of delivering 17+ production apps. Expert in Flutter, Android, and Clean Architecture, '
-      'specializing in building scalable, maintainable systems and leading technical initiatives '
-      'from concept to release across diverse industries.';
+      'Senior Mobile Engineer with 6+ years of experience and a proven track record of delivering 17+ production apps. Expert in Flutter, Android, and Clean Architecture, specializing in building scalable, maintainable systems and leading technical initiatives from concept to release across diverse industries.';
 
   // ─── Experience with Integrated Projects ────────────────────────────
 
@@ -226,8 +223,10 @@ class CVData {
           description:
               'AI-powered education with ChatGPT assistant, video streaming, and TTS.',
           platforms: [PlatformType.iOS, PlatformType.Android, PlatformType.Web],
-          iosUrl: 'https://apps.apple.com/eg/app/alrazi-%D8%A7%D9%84%D8%B1%D8%A7%D8%B2%D9%8A/id6445819822',
-          androidUrl: 'https://play.google.com/store/apps/details?id=com.yousef.sciophile',
+          iosUrl:
+              'https://apps.apple.com/eg/app/alrazi-%D8%A7%D9%84%D8%B1%D8%A7%D8%B2%D9%8A/id6445819822',
+          androidUrl:
+              'https://play.google.com/store/apps/details?id=com.yousef.sciophile',
           webUrl: 'https://alrazi-academy.com/#/landing',
         ),
       ],
@@ -251,7 +250,8 @@ class CVData {
               'Gamified health and rewards platform with HealthKit integration.',
           platforms: [PlatformType.iOS, PlatformType.Android],
           iosUrl: 'https://apps.apple.com/eg/app/sanad-rewards/id6448073834',
-          androidUrl: 'https://play.google.com/store/apps/details?id=com.ubd.sanad',
+          androidUrl:
+              'https://play.google.com/store/apps/details?id=com.ubd.sanad',
         ),
       ],
     ),
@@ -271,7 +271,8 @@ class CVData {
           description: 'Health & Nutrition platform.',
           platforms: [PlatformType.Android, PlatformType.iOS, PlatformType.Web],
           iosUrl: 'https://apps.apple.com/kw/app/try-macro/id1602597534',
-          androidUrl: 'https://docs.google.com/document/d/12BwTIDLNaUGYLrG6ruflYCp0l58M3SKF/edit',
+          androidUrl:
+              'https://docs.google.com/document/d/12BwTIDLNaUGYLrG6ruflYCp0l58M3SKF/edit',
           webUrl: 'https://trymacro.com/',
         ),
         ProjectApp(
@@ -279,14 +280,16 @@ class CVData {
           description: 'Health & Nutrition application.',
           platforms: [PlatformType.Android, PlatformType.iOS],
           iosUrl: 'https://apps.apple.com/kw/app/challenge-center/id1602439876',
-          androidUrl: 'https://play.google.com/store/apps/details?id=com.onesolution.challenge',
+          androidUrl:
+              'https://play.google.com/store/apps/details?id=com.onesolution.challenge',
         ),
         ProjectApp(
           name: 'Light Options',
           description: 'Health & Nutrition tracking.',
           platforms: [PlatformType.Android, PlatformType.iOS, PlatformType.Web],
           iosUrl: 'https://apps.apple.com/kw/app/light-options/id1614157720',
-          androidUrl: 'https://play.google.com/store/apps/details?id=com.onesolution.light_option',
+          androidUrl:
+              'https://play.google.com/store/apps/details?id=com.onesolution.light_option',
           webUrl: 'http://3.251.4.121/',
         ),
         ProjectApp(
@@ -294,7 +297,8 @@ class CVData {
           description: 'Health & Nutrition planning.',
           platforms: [PlatformType.Android, PlatformType.iOS, PlatformType.Web],
           iosUrl: 'https://apps.apple.com/eg/app/lets-diet/id1598732448',
-          androidUrl: 'https://play.google.com/store/apps/details?id=com.onesolutionc.lets_diet',
+          androidUrl:
+              'https://play.google.com/store/apps/details?id=com.onesolutionc.lets_diet',
           webUrl: 'http://3.134.54.171/',
         ),
         ProjectApp(
@@ -302,14 +306,16 @@ class CVData {
           description: 'School management system.',
           platforms: [PlatformType.Android, PlatformType.iOS],
           iosUrl: 'https://apps.apple.com/kw/app/one-edu/id1614161401',
-          androidUrl: 'https://play.google.com/store/apps/details?id=com.onesolutionc.one_edu',
+          androidUrl:
+              'https://play.google.com/store/apps/details?id=com.onesolutionc.one_edu',
         ),
         ProjectApp(
           name: 'Yabila Chalet',
           description: 'Booking platform for chalets and resorts.',
           platforms: [PlatformType.Android, PlatformType.iOS, PlatformType.Web],
           iosUrl: 'https://apps.apple.com/eg/app/yabilachalet/id1596577791',
-          androidUrl: 'https://play.google.com/store/apps/details?id=com.onesolutionc.yabilachalet',
+          androidUrl:
+              'https://play.google.com/store/apps/details?id=com.onesolutionc.yabilachalet',
           webUrl: 'http://54.170.130.161/',
         ),
         ProjectApp(
@@ -317,7 +323,8 @@ class CVData {
           description:
               'Ministry of Electricity & Water and Renewable Energy in Kuwait.',
           platforms: [PlatformType.Android],
-          androidUrl: 'https://play.google.com/store/apps/details?id=com.onesolutionc.ministry_of_electricity_and_water_kuwait',
+          androidUrl:
+              'https://play.google.com/store/apps/details?id=com.onesolutionc.ministry_of_electricity_and_water_kuwait',
         ),
         ProjectApp(
           name: 'Makkah Region Dev. Authority',
