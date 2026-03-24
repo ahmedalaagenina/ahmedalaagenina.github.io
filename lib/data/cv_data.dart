@@ -139,11 +139,11 @@ class CVData {
     ExperienceRecord(
       company: 'CyShield',
       role: 'Software Engineer I',
-      period: 'Feb 2025 – Feb 2026',
+      period: 'Jan 2025 – Feb 2026',
       location: 'Egypt',
       descriptions: [
         'Architected modular HR platform supporting ticketing, RFC, reservations, and attendance workflows.',
-        'Led modernization of legacy modules into clean architecture, improving maintainability by 60%.',
+        'Led modernization of legacy modules into clean architecture, improving maintainability by 80%.',
         'Conducted code reviews, ensuring architectural consistency across mobile team.',
       ],
       projects: [
