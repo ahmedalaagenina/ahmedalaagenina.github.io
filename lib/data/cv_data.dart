@@ -1,24 +1,41 @@
-import 'package:flutter/material.dart';
+/// ════════════════════════════════════════════════════════════════════
+///  YOUR CV DATA — THE ONLY FILE YOU NEED TO EDIT
+///
+///  Every section of the website renders from this file.
+///  Update it, push to main, and CI/CD deploys automatically.
+///
+///  Search for "TODO" to find missing store links.
+/// ════════════════════════════════════════════════════════════════════
+library;
 
 // ─── Models ───────────────────────────────────────────────────────────
 
+enum AppPlatform { ios, android, web }
+
 class ProjectApp {
   final String name;
-  final String? description;
-  final List<String> highlights;
-  final List<PlatformType> platforms;
+  final String company;
+  final String description;
+  final List<AppPlatform> platforms;
   final String? iosUrl;
   final String? androidUrl;
   final String? webUrl;
 
+  /// Link to an admin dashboard / control panel, if the product has one.
+  /// Badges only render for non-null links, so leaving this null hides it.
+  final String? adminUrl;
+  final bool featured;
+
   const ProjectApp({
     required this.name,
-    this.description,
-    this.highlights = const [],
+    this.company = '',
+    required this.description,
     required this.platforms,
     this.iosUrl,
     this.androidUrl,
     this.webUrl,
+    this.adminUrl,
+    this.featured = false,
   });
 }
 
@@ -27,30 +44,48 @@ class ExperienceRecord {
   final String role;
   final String period;
   final String location;
-  final List<String> descriptions;
-  final List<ProjectApp> projects;
+  final bool isCurrent;
+  final bool isPartTime;
+
+  /// Optional grouping: bullets per project inside the company.
+  final List<ExperienceProject> projects;
 
   const ExperienceRecord({
     required this.company,
     required this.role,
     required this.period,
     required this.location,
-    required this.descriptions,
-    this.projects = const [],
+    this.isCurrent = false,
+    this.isPartTime = false,
+    required this.projects,
   });
 }
 
-enum PlatformType { iOS, Android, Web }
+class ExperienceProject {
+  final String name;
+  final List<String> bullets;
 
-class SocialLink {
-  final String label;
+  const ExperienceProject({required this.name, required this.bullets});
+}
+
+class SkillCategory {
+  final String title;
+  final List<String> skills;
+
+  const SkillCategory({required this.title, required this.skills});
+}
+
+class OpenSourceProject {
+  final String name;
+  final String description;
   final String url;
-  final IconData icon;
+  final String tag;
 
-  const SocialLink({
-    required this.label,
+  const OpenSourceProject({
+    required this.name,
+    required this.description,
     required this.url,
-    required this.icon,
+    required this.tag,
   });
 }
 
@@ -58,339 +93,511 @@ class EducationRecord {
   final String degree;
   final String institution;
   final String period;
-  final String? description;
 
   const EducationRecord({
     required this.degree,
     required this.institution,
     required this.period,
-    this.description,
   });
 }
 
-class LanguageRecord {
-  final String language;
-  final String level;
+class StatRecord {
+  final int value;
+  final String suffix;
+  final String label;
 
-  const LanguageRecord({required this.language, required this.level});
+  const StatRecord({
+    required this.value,
+    this.suffix = '+',
+    required this.label,
+  });
 }
 
-// ─── Data Constants ───────────────────────────────────────────────────
+class QuickLink {
+  final String label;
+  final String subtitle;
+  final String url;
 
-class CVData {
+  const QuickLink({
+    required this.label,
+    required this.subtitle,
+    required this.url,
+  });
+}
+
+// ─── Data ─────────────────────────────────────────────────────────────
+
+abstract final class CV {
+  // ── Identity ────────────────────────────────────────────────────────
   static const String name = 'Ahmed AlaaEldin Atia';
-  static const String title = 'Senior Mobile Engineer (Flutter | Android)';
+  static const String shortName = 'Ahmed Alaa';
+  static const String initials = 'AA';
+  static const String title = 'Senior Mobile Engineer';
+  static const String subtitle = 'Flutter | Android';
   static const String location = 'Saudi Arabia';
-  static const String phoneKsa = '+966508509042';
-  static const String phoneEg = '+201096796900';
+
+  /// Roles cycled by the typewriter in the hero section.
+  static const List<String> heroRoles = [
+    'Senior Mobile Engineer',
+    'Flutter Expert',
+    'Android Developer',
+    'Team Lead',
+    'Open Source Author',
+  ];
+
+  static const String summary =
+      'Senior Mobile Engineer with 6+ years of experience and a proven track '
+      'record of delivering 17+ production apps across fintech, logistics, '
+      'healthcare, education, and government sectors. Expert in Flutter, '
+      'Android, and Clean Architecture, with deep experience designing '
+      'offline-first systems, secure payment flows, and scalable multi-role '
+      'platforms. Builds and publishes open-source packages (pub.dev) and '
+      'leads technical decision-making from concept through release.';
+
+  // ── Contact ─────────────────────────────────────────────────────────
   static const String email = 'ahmedalaagenina@gmail.com';
+
+  /// Multiple phone numbers → the UI shows a picker for Call / WhatsApp.
+  static const List<({String label, String number})> phones = [
+    (label: 'Saudi Arabia', number: '+966508509042'),
+    (label: 'Egypt', number: '+201096796900'),
+  ];
 
   static const String linkedinUrl =
       'https://www.linkedin.com/in/ahmedalaagenina';
   static const String githubUrl = 'https://github.com/AhmedAlaaGenina';
+  static const String pubDevUrl = 'https://pub.dev/publishers/ahmedalaa.dev';
 
-  static const String briefBio =
-      'Architecting high-scale mobile ecosystems with Flutter & Android. 6+ years of engineering excellence across 17+ production apps.';
+  /// Link to your CV on Google Drive (share → "Anyone with the link").
+  static const String cvUrl =
+      'https://drive.google.com/file/d/1k2GvxDL2WYdCMx-EZevlhW_xU20EAI5v/view?usp=drive_link';
 
-  static const String summary =
-      'Senior Mobile Engineer with 6+ years of experience and a proven track record of delivering 17+ production apps. Expert in Flutter, Android, and Clean Architecture, specializing in building scalable, maintainable systems and leading technical initiatives from concept to release across diverse industries.';
+  // ── Hero stats (animated counters) ──────────────────────────────────
+  static const List<StatRecord> stats = [
+    StatRecord(value: 6, label: 'Years of Experience'),
+    StatRecord(value: 17, label: 'Production Apps'),
+    StatRecord(value: 5, label: 'Industries Served'),
+    StatRecord(value: 10, suffix: 'K+', label: 'Daily Users Supported'),
+  ];
 
-  // ─── Experience with Integrated Projects ────────────────────────────
-
+  // ── Experience ──────────────────────────────────────────────────────
   static const List<ExperienceRecord> experience = [
-    // 1) IDaraNet
     ExperienceRecord(
       company: 'IDaraNet',
       role: 'Senior Software Engineer',
       period: 'Feb 2026 – Present',
       location: 'Saudi Arabia',
-      descriptions: [
-        'Architected a multi-role trip management system using modular MVVM and Provider, establishing scalable engineering standards for vehicle workflows.',
-        'Engineered mission-critical features including session persistence, auto-recovery flows, and role-based navigation for cross-platform reliability.',
-        'Leading architecture and development of multi-role document workflow system.',
-        'Designed deep linking and App/Web fallback strategies for cross-platform experience.',
-      ],
+      isCurrent: true,
       projects: [
-        ProjectApp(
-          name: 'iDara Trip',
-          description:
-              'Multi-role trip management with session persistence and auto-recovery.',
-          platforms: [PlatformType.iOS, PlatformType.Android],
-          iosUrl: 'https://apps.apple.com/us/app/idara-trip/id6760389320',
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=net.idara.trip',
+        ExperienceProject(
+          name:
+              'iDara Sign — E-Signature Platform (iOS | Android | Web | Admin)',
+          bullets: [
+            'Leading architecture and development of a multi-role document '
+                'workflow system spanning mobile and Flutter Web, using Clean '
+                'Architecture, BLoC, GoRouter, and GetIt.',
+            'Engineered an offline-first caching architecture (Dio interceptor '
+                '+ Hive) with read/write request splitting and optimistic local '
+                'execution, reducing live-API calls by 40% through cache-first reads.',
+            'Designed a cross-app duplicate-request prevention system (custom '
+                'interceptor + BLoC-level guard) across 2 apps, eliminating '
+                'duplicate-submission incidents from repeated taps and network retries.',
+            'Built a continuous PDF signing experience (pdfrx) with draggable '
+                'signature-field placement across multi-page documents, cutting '
+                'signing-flow crash reports by 100%.',
+            'Designed deep linking and App/Web fallback strategies for seamless '
+                'cross-platform sign-in and document-signing journeys.',
+            'Owned the release lifecycle end-to-end — code review through App '
+                'Store and Google Play submission, managing privacy labels, OTP '
+                'review requirements, and deeplink configuration.',
+          ],
         ),
-        ProjectApp(
-          name: 'iDara Sign',
-          description:
-              'Multi-role document workflow with deep linking and App/Web fallback.',
-          platforms: [PlatformType.iOS, PlatformType.Android, PlatformType.Web],
-          // TODO: INSERT iOS STORE LINK HERE
-          iosUrl: null,
-          // TODO: INSERT Android STORE LINK HERE
-          androidUrl: null,
-          // TODO: INSERT WEB LINK HERE
-          webUrl: null,
+        ExperienceProject(
+          name: 'iDara Trip — Trip Management Platform (iOS | Android)',
+          bullets: [
+            'Architected a multi-role trip management system using modular MVVM '
+                'and Provider, establishing scalable engineering standards for '
+                'vehicle workflows.',
+            'Engineered mission-critical features including session persistence, '
+                'auto-recovery flows, and role-based navigation for '
+                'cross-platform reliability.',
+          ],
         ),
       ],
     ),
-
-    // 2) CyShield
     ExperienceRecord(
       company: 'CyShield',
       role: 'Software Engineer I',
       period: 'Jan 2025 – Feb 2026',
       location: 'Egypt',
-      descriptions: [
-        'Architected modular HR platform supporting ticketing, RFC, reservations, and attendance workflows.',
-        'Led modernization of legacy modules into clean architecture, improving maintainability by 80%.',
-        'Conducted code reviews, ensuring architectural consistency across mobile team.',
-      ],
       projects: [
-        ProjectApp(
-          name: 'HR App (CyShield)',
-          description:
-              'Core HR modules: ticketing, RFC, reservations, attendance management.',
-          platforms: [PlatformType.iOS, PlatformType.Android],
-          // TODO: INSERT iOS STORE LINK HERE
-          iosUrl: null,
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=com.cyapps.hr_app',
+        ExperienceProject(
+          name: 'HR App Management Platform (iOS | Android)',
+          bullets: [
+            'Architected a modular HR platform supporting ticketing, RFC, '
+                'reservations, attendance, and additional workflow modules.',
+            'Led modernization of legacy modules into Clean Architecture, '
+                'improving maintainability by 60%.',
+            'Conducted code reviews, ensuring architectural consistency across '
+                'the mobile team.',
+          ],
         ),
       ],
     ),
-
-    // 3) Aramex International
     ExperienceRecord(
       company: 'Aramex International',
       role: 'Software Engineer',
       period: 'Oct 2022 – Jan 2025',
       location: 'Egypt',
-      descriptions: [
-        'Contributed to the architecture and implementation of real-time tracking systems with maps, routing, barcode scanning, and multi-payment workflows.',
-        'Optimized performance for high-traffic production (10K+ daily operations).',
-        'Developed driver workflows with real-time updates, REST APIs, and push notifications.',
-      ],
       projects: [
-        ProjectApp(
-          name: 'Aramex Champion App',
-          description:
-              'Courier operations platform with offline-first sync, maps, routing, and barcode scanning.',
-          platforms: [PlatformType.iOS, PlatformType.Android],
-          iosUrl:
-              'https://apps.apple.com/us/app/delivery-champions/id6502755328',
-          // TODO: INSERT Android STORE LINK HERE
-          androidUrl: null,
-        ),
-        ProjectApp(
-          name: 'Aramex Freight App',
-          description:
-              'Truck management platform with real-time updates and REST APIs.',
-          platforms: [PlatformType.iOS, PlatformType.Android],
-          iosUrl:
-              'https://apps.apple.com/us/app/aramex-freight-app/id6479978455',
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=com.aramex.truckqueuingapp',
+        ExperienceProject(
+          name: 'Champion App (Courier Ops) & Freight App (Truck Management)',
+          bullets: [
+            'Architected a full offline-first synchronization engine, ensuring '
+                '100% data integrity and seamless operation for couriers in '
+                'zero-connectivity zones.',
+            'Bridged native Driver SDKs (Kotlin/Swift) into Flutter via Platform '
+                'Channels, enabling advanced telematics and real-time mapping '
+                'for 10K+ daily activities.',
+            'Reduced device battery consumption by 15% by optimizing location '
+                'polling and background sync logic, maintaining 99.9% app uptime.',
+            'Engineered secure multi-payment workflows and real-time '
+                'notification systems for high-concurrency courier and freight '
+                'operations.',
+          ],
         ),
       ],
     ),
-
-    // 4) Alrazi
-    ExperienceRecord(
-      company: 'Alrazi',
-      role: 'Senior Software Engineer (Part-Time)',
-      period: 'Sept 2023 – Present',
-      location: 'Jordan',
-      descriptions: [
-        'Built buying, renting, and listing features with secure payment integration.',
-        'Integrated ChatGPT assistant, video streaming, TTS, and assessment systems.',
-        'Built complete backend using Firebase and Cloud Functions.',
-      ],
-      projects: [
-        ProjectApp(
-          name: 'Stylee (Alrazi)',
-          description:
-              'Fashion e-commerce marketplace with buying, renting, and listing.',
-          platforms: [PlatformType.iOS, PlatformType.Android, PlatformType.Web],
-          iosUrl:
-              'https://apps.apple.com/eg/app/stylee-rent-buy-and-earn/id6499165037',
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=com.yousef.stylee',
-          webUrl: 'https://fashion-ae0a0.web.app/#/auth',
-        ),
-        ProjectApp(
-          name: 'Alrazi Education Platform',
-          description:
-              'AI-powered education with ChatGPT assistant, video streaming, and TTS.',
-          platforms: [PlatformType.iOS, PlatformType.Android, PlatformType.Web],
-          iosUrl:
-              'https://apps.apple.com/eg/app/alrazi-%D8%A7%D9%84%D8%B1%D8%A7%D8%B2%D9%8A/id6445819822',
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=com.yousef.sciophile',
-          webUrl: 'https://alrazi-academy.com/#/landing',
-        ),
-      ],
-    ),
-
-    // 5) SanadRewards
     ExperienceRecord(
       company: 'SanadRewards',
-      role: 'Software Engineering Team Lead (Part-Time)',
+      role: 'Software Engineering Team Lead',
       period: 'Dec 2022 – Present',
       location: 'Egypt',
-      descriptions: [
-        'Leading cross-functional team (Mobile, Backend, UI/UX) driving sprint execution.',
-        'Architected HealthKit/Google Health Connect integrations with sensors and rewards.',
-        'Mentoring engineers and aligning technical roadmap with business strategy.',
-      ],
+      isCurrent: true,
+      isPartTime: true,
       projects: [
-        ProjectApp(
-          name: 'SanadRewards',
-          description:
-              'Gamified health and rewards platform with HealthKit integration.',
-          platforms: [PlatformType.iOS, PlatformType.Android],
-          iosUrl: 'https://apps.apple.com/eg/app/sanad-rewards/id6448073834',
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=com.ubd.sanad',
+        ExperienceProject(
+          name: 'SanadRewards — Gamified Health & Rewards (iOS | Android)',
+          bullets: [
+            'Leading a cross-functional team (Mobile, Backend, UI/UX), driving '
+                'sprint execution.',
+            'Architected HealthKit / Google Health Connect integrations with '
+                'sensors and rewards logic.',
+            'Mentoring engineers and aligning the technical roadmap with '
+                'business strategy.',
+          ],
         ),
       ],
     ),
-
-    // 6) One Solution
+    ExperienceRecord(
+      company: 'Alrazi',
+      role: 'Senior Software Engineer',
+      period: 'Sept 2023 – Jan 2026',
+      location: 'Jordan',
+      isPartTime: true,
+      projects: [
+        ExperienceProject(
+          name: 'Stylee — Fashion E-commerce Marketplace (iOS | Android | Web)',
+          bullets: [
+            'Built buying, renting, and listing features with secure payment '
+                'integration.',
+          ],
+        ),
+        ExperienceProject(
+          name: 'Alrazi Education Platform (iOS | Android | Web)',
+          bullets: [
+            'Integrated a ChatGPT assistant, video streaming, TTS, and '
+                'assessment systems.',
+            'Built the complete backend using Firebase and Cloud Functions.',
+          ],
+        ),
+      ],
+    ),
     ExperienceRecord(
       company: 'One Solution',
       role: 'Flutter Developer',
       period: 'Jan 2021 – Jun 2023',
       location: 'Egypt',
-      descriptions: [
-        'Delivered 9+ production apps across health, e-commerce, education, and booking domains.',
-      ],
       projects: [
-        ProjectApp(
-          name: 'Macro',
-          description: 'Health & Nutrition platform.',
-          platforms: [PlatformType.Android, PlatformType.iOS, PlatformType.Web],
-          iosUrl: 'https://apps.apple.com/kw/app/try-macro/id1602597534',
-          androidUrl:
-              'https://docs.google.com/document/d/12BwTIDLNaUGYLrG6ruflYCp0l58M3SKF/edit',
-          webUrl: 'https://trymacro.com/',
-        ),
-        ProjectApp(
-          name: 'Challenge Center',
-          description: 'Health & Nutrition application.',
-          platforms: [PlatformType.Android, PlatformType.iOS],
-          iosUrl: 'https://apps.apple.com/kw/app/challenge-center/id1602439876',
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=com.onesolution.challenge',
-        ),
-        ProjectApp(
-          name: 'Light Options',
-          description: 'Health & Nutrition tracking.',
-          platforms: [PlatformType.Android, PlatformType.iOS, PlatformType.Web],
-          iosUrl: 'https://apps.apple.com/kw/app/light-options/id1614157720',
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=com.onesolution.light_option',
-          webUrl: 'http://3.251.4.121/',
-        ),
-        ProjectApp(
-          name: "Let's Diet",
-          description: 'Health & Nutrition planning.',
-          platforms: [PlatformType.Android, PlatformType.iOS, PlatformType.Web],
-          iosUrl: 'https://apps.apple.com/eg/app/lets-diet/id1598732448',
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=com.onesolutionc.lets_diet',
-          webUrl: 'http://3.134.54.171/',
-        ),
-        ProjectApp(
-          name: 'One Edu',
-          description: 'School management system.',
-          platforms: [PlatformType.Android, PlatformType.iOS],
-          iosUrl: 'https://apps.apple.com/kw/app/one-edu/id1614161401',
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=com.onesolutionc.one_edu',
-        ),
-        ProjectApp(
-          name: 'Yabila Chalet',
-          description: 'Booking platform for chalets and resorts.',
-          platforms: [PlatformType.Android, PlatformType.iOS, PlatformType.Web],
-          iosUrl: 'https://apps.apple.com/eg/app/yabilachalet/id1596577791',
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=com.onesolutionc.yabilachalet',
-          webUrl: 'http://54.170.130.161/',
-        ),
-        ProjectApp(
-          name: 'Al-Sibiya Station',
-          description:
-              'Ministry of Electricity & Water and Renewable Energy in Kuwait.',
-          platforms: [PlatformType.Android],
-          androidUrl:
-              'https://play.google.com/store/apps/details?id=com.onesolutionc.ministry_of_electricity_and_water_kuwait',
-        ),
-        ProjectApp(
-          name: 'Makkah Region Dev. Authority',
-          description: 'Smart government services app.',
-          platforms: [PlatformType.Web],
-          webUrl: 'http://52.31.207.253',
+        ExperienceProject(
+          name: '9+ Production Apps',
+          bullets: [
+            'Delivered 9+ production apps across health, e-commerce, education, '
+                'booking, and government sectors, including Macro, Challenge '
+                'Center, Light Options, Let\'s Diet, One Edu, Yabila Chalet, '
+                'Al-Sibiya Station, and Makkah Region Development Authority '
+                'platforms.',
+          ],
         ),
       ],
     ),
   ];
 
-  // ─── Skills ─────────────────────────────────────────────────────────
-
-  static const List<String> skillsMobile = [
-    'Flutter',
-    'Dart',
-    'Android',
-    'Kotlin',
-    'Java',
-    'Jetpack Compose',
+  // ── App Portfolio (the projects grid) ───────────────────────────────
+  static const List<ProjectApp> projects = [
+    ProjectApp(
+      name: 'iDara Sign',
+      company: 'IDaraNet',
+      description:
+          'Multi-role e-signature platform (iOS, Android, Web + Admin) with '
+          'offline-first caching, continuous PDF signing, and deep-linked '
+          'App/Web journeys.',
+      platforms: [AppPlatform.ios, AppPlatform.android, AppPlatform.web],
+      featured: true,
+      iosUrl: 'https://apps.apple.com/us/app/idara-sign/id6759380839',
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=net.idara.sign',
+      webUrl: 'https://sign.idara.sa',
+      adminUrl: 'https://sign.idara.sa/admin',
+    ),
+    ProjectApp(
+      name: 'iDara Trip',
+      company: 'IDaraNet',
+      description:
+          'Multi-role trip management with session persistence, auto-recovery '
+          'flows, and role-based navigation.',
+      platforms: [AppPlatform.ios, AppPlatform.android],
+      featured: true,
+      iosUrl: 'https://apps.apple.com/us/app/idara-trip/id6760389320',
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=net.idara.trip',
+    ),
+    ProjectApp(
+      name: 'Aramex Champion',
+      company: 'Aramex International',
+      description:
+          'Courier operations platform with offline-first sync, telematics, '
+          'real-time mapping, and multi-payment workflows.',
+      platforms: [AppPlatform.ios, AppPlatform.android],
+      featured: true,
+      iosUrl: 'https://apps.apple.com/us/app/delivery-champions/id6502755328',
+      // TODO: ADD Aramex Champion GOOGLE PLAY LINK HERE
+      androidUrl: null,
+    ),
+    ProjectApp(
+      name: 'Aramex Freight',
+      company: 'Aramex International',
+      description:
+          'Truck management platform with real-time updates and '
+          'high-concurrency freight operations.',
+      platforms: [AppPlatform.ios, AppPlatform.android],
+      featured: true,
+      iosUrl: 'https://apps.apple.com/us/app/aramex-freight-app/id6479978455',
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=com.aramex.truckqueuingapp',
+    ),
+    ProjectApp(
+      name: 'HR Platform',
+      company: 'CyShield',
+      description:
+          'Modular HR platform: ticketing, RFC, reservations, and attendance '
+          'workflows in Clean Architecture.',
+      platforms: [AppPlatform.ios, AppPlatform.android],
+      featured: true,
+      // TODO: ADD CyShield HR APP STORE LINK HERE
+      iosUrl: null,
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=com.cyapps.hr_app',
+    ),
+    ProjectApp(
+      name: 'SanadRewards',
+      company: 'SanadRewards',
+      description:
+          'Gamified health & rewards platform with HealthKit / Google Health '
+          'Connect integrations.',
+      platforms: [AppPlatform.ios, AppPlatform.android],
+      featured: true,
+      iosUrl: 'https://apps.apple.com/eg/app/sanad-rewards/id6448073834',
+      androidUrl: 'https://play.google.com/store/apps/details?id=com.ubd.sanad',
+    ),
+    ProjectApp(
+      name: 'Stylee',
+      company: 'Alrazi',
+      description:
+          'Fashion e-commerce marketplace with buying, renting, listing, and '
+          'secure payments.',
+      platforms: [AppPlatform.ios, AppPlatform.android, AppPlatform.web],
+      featured: true,
+      iosUrl:
+          'https://apps.apple.com/eg/app/stylee-rent-buy-and-earn/id6499165037',
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=com.yousef.stylee',
+      webUrl: 'https://fashion-ae0a0.web.app/#/auth',
+    ),
+    ProjectApp(
+      name: 'Alrazi Education',
+      company: 'Alrazi',
+      description:
+          'AI-powered education platform with ChatGPT assistant, video '
+          'streaming, TTS, and assessments.',
+      platforms: [AppPlatform.ios, AppPlatform.android, AppPlatform.web],
+      featured: true,
+      iosUrl:
+          'https://apps.apple.com/eg/app/alrazi-%D8%A7%D9%84%D8%B1%D8%A7%D8%B2%D9%8A/id6445819822',
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=com.yousef.sciophile',
+      webUrl: 'https://alrazi-academy.com/#/landing',
+    ),
+    ProjectApp(
+      name: 'Macro',
+      company: 'One Solution',
+      description: 'Health & nutrition platform.',
+      platforms: [AppPlatform.ios, AppPlatform.android, AppPlatform.web],
+      iosUrl: 'https://apps.apple.com/kw/app/try-macro/id1602597534',
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=com.onesolution.macroapp',
+      webUrl: 'https://trymacro.com/',
+    ),
+    ProjectApp(
+      name: 'Challenge Center',
+      company: 'One Solution',
+      description: 'Health & nutrition application.',
+      platforms: [AppPlatform.ios, AppPlatform.android],
+      iosUrl: 'https://apps.apple.com/kw/app/challenge-center/id1602439876',
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=com.onesolution.challenge',
+    ),
+    ProjectApp(
+      name: 'Light Options',
+      company: 'One Solution',
+      description: 'Health & nutrition tracking.',
+      platforms: [AppPlatform.ios, AppPlatform.android, AppPlatform.web],
+      iosUrl: 'https://apps.apple.com/kw/app/light-options/id1614157720',
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=com.onesolution.light_option',
+      webUrl: 'http://3.251.4.121/',
+    ),
+    ProjectApp(
+      name: "Let's Diet",
+      company: 'One Solution',
+      description: 'Health & nutrition planning.',
+      platforms: [AppPlatform.ios, AppPlatform.android, AppPlatform.web],
+      iosUrl: 'https://apps.apple.com/eg/app/lets-diet/id1598732448',
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=com.onesolutionc.lets_diet',
+      webUrl: 'http://3.134.54.171/',
+    ),
+    ProjectApp(
+      name: 'One Edu',
+      company: 'One Solution',
+      description: 'School management system.',
+      platforms: [AppPlatform.ios, AppPlatform.android],
+      iosUrl: 'https://apps.apple.com/kw/app/one-edu/id1614161401',
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=com.onesolutionc.one_edu',
+    ),
+    ProjectApp(
+      name: 'Yabila Chalet',
+      company: 'One Solution',
+      description: 'Booking platform for chalets and resorts.',
+      platforms: [AppPlatform.ios, AppPlatform.android, AppPlatform.web],
+      iosUrl: 'https://apps.apple.com/eg/app/yabilachalet/id1596577791',
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=com.onesolutionc.yabilachalet',
+      webUrl: 'http://54.170.130.161/',
+    ),
+    ProjectApp(
+      name: 'Al-Sibiya Station',
+      company: 'One Solution',
+      description:
+          'Ministry of Electricity & Water and Renewable Energy in Kuwait.',
+      platforms: [AppPlatform.android],
+      androidUrl:
+          'https://play.google.com/store/apps/details?id=com.onesolutionc.ministry_of_electricity_and_water_kuwait',
+    ),
+    ProjectApp(
+      name: 'Makkah Region Dev. Authority',
+      company: 'One Solution',
+      description: 'Smart government services platform.',
+      platforms: [AppPlatform.web],
+      webUrl: 'http://52.31.207.253',
+    ),
   ];
 
-  static const List<String> skillsArchitecture = [
-    'Clean Architecture',
-    'MVC',
-    'MVVM',
-    'BLoC',
-    'Provider',
-    'Riverpod',
-    'GetX',
-    'SOLID',
+  // ── Open Source ─────────────────────────────────────────────────────
+  static const List<OpenSourceProject> openSource = [
+    OpenSourceProject(
+      name: 'noon_payments',
+      tag: 'pub.dev package',
+      description:
+          'Published and maintained Flutter plugin for Noon Payments '
+          'integration, including Swift Package Manager support. Full pub.dev '
+          'publishing lifecycle managed end-to-end.',
+      url: 'https://pub.dev/packages/noon_payments',
+    ),
   ];
 
-  static const List<String> skillsBackend = [
-    'Firebase',
-    'Firestore',
-    'Cloud Functions',
-    'REST APIs',
-    'Authentication',
-    'FCM',
-    'Odoo RPC',
+  // ── Skills ──────────────────────────────────────────────────────────
+  static const List<SkillCategory> skills = [
+    SkillCategory(
+      title: 'Mobile Development',
+      skills: [
+        'Flutter',
+        'Dart',
+        'Android',
+        'Kotlin',
+        'Java',
+        'Jetpack Compose',
+      ],
+    ),
+    SkillCategory(
+      title: 'Architecture & State',
+      skills: [
+        'Clean Architecture',
+        'MVVM',
+        'MVC',
+        'BLoC',
+        'Provider',
+        'Riverpod',
+        'GetX',
+        'GoRouter',
+        'GetIt',
+        'Dartz (Either)',
+        'Equatable',
+        'SOLID',
+      ],
+    ),
+    SkillCategory(
+      title: 'Backend & Cloud',
+      skills: [
+        'Firebase',
+        'Firestore',
+        'Cloud Functions',
+        'REST APIs',
+        'Authentication',
+        'FCM',
+        'Odoo RPC',
+      ],
+    ),
+    SkillCategory(
+      title: 'Engineering Practices',
+      skills: [
+        'Git',
+        'CI/CD (GitHub Actions)',
+        'Fastlane',
+        'Testing (Unit · Widget · Integration)',
+        'Code Review',
+        'Performance Optimization',
+      ],
+    ),
+    SkillCategory(
+      title: 'Additional',
+      skills: [
+        'Localization',
+        'Maps',
+        'Payments',
+        'Sensors',
+        'NFC/QR',
+        'WebView',
+        'Custom UI Components',
+      ],
+    ),
   ];
 
-  static const List<String> skillsEngineering = [
-    'Git',
-    'CI/CD Basics',
-    'Testing (Unit, Widget, Integration)',
-    'Code Review',
-    'Performance Optimization',
-  ];
-
-  static const List<String> skillsAdditional = [
-    'Localization',
-    'Maps',
-    'Payments',
-    'Sensors',
-    'NFC/QR',
-    'WebView',
-    'Custom UI',
-  ];
-
-  // ─── Education ──────────────────────────────────────────────────────
-
+  // ── Education & Certifications ──────────────────────────────────────
   static const List<EducationRecord> education = [
     EducationRecord(
-      degree: "Bachelor's Degree – Computer Science",
+      degree: "Bachelor's Degree in Computer Science",
       institution: 'Mansoura University',
       period: '2016 – 2020',
     ),
@@ -401,21 +608,30 @@ class CVData {
     ),
   ];
 
-  // ─── Certifications ─────────────────────────────────────────────────
-
   static const List<String> certifications = [
-    'Flutter Mobile Development – ITI',
-    'Clean Architecture & Testing Masterclass – Udemy',
-    'Flutter BLoC Pattern – Udemy',
-    'Flutter Development – London App Brewery',
-    'Android Development – New Horizons',
-    'Java SE – New Horizons',
+    'Flutter Mobile Development — Information Technology Institute (ITI)',
+    'Clean Architecture & Testing Masterclass — Udemy',
+    'Advanced Flutter State Management (BLoC) — Udemy',
+    'Android Development — New Horizons',
   ];
 
-  // ─── Languages ──────────────────────────────────────────────────────
+  static const List<({String language, String level})> languages = [
+    (language: 'Arabic', level: 'Native'),
+    (language: 'English', level: 'Professional'),
+  ];
 
-  static const List<LanguageRecord> languages = [
-    LanguageRecord(language: 'Arabic', level: 'Native'),
-    LanguageRecord(language: 'English', level: 'Professional'),
+  // ── Quick Links page (/links) ───────────────────────────────────────
+  static const List<QuickLink> quickLinks = [
+    QuickLink(
+      label: 'LinkedIn',
+      subtitle: 'Professional profile & network',
+      url: linkedinUrl,
+    ),
+    QuickLink(label: 'GitHub', subtitle: 'Open source & code', url: githubUrl),
+    QuickLink(
+      label: 'noon_payments on pub.dev',
+      subtitle: 'My published Flutter plugin',
+      url: 'https://pub.dev/packages/noon_payments',
+    ),
   ];
 }

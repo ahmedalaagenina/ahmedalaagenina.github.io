@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -18,12 +19,19 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      
+          cache: true
+
       - name: Install dependencies
         run: flutter pub get
-      
-      - name: Build Web Application
-        run: flutter build web --release --base-href "/"
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Build Web Application (WASM + JS fallback)
+        run: flutter build web --release --wasm --base-href "/"
+
+      - name: SPA fallback for deep links (/links etc.)
+        run: cp build/web/index.html build/web/404.html
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
