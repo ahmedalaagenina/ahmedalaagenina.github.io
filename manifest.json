@@ -1,11 +1,11 @@
 {
-    "name": "mycv",
-    "short_name": "mycv",
+    "name": "Ahmed Alaa — Senior Mobile Engineer",
+    "short_name": "Ahmed Alaa",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#060A14",
+    "theme_color": "#060A14",
+    "description": "Portfolio & CV of Ahmed Alaa — Senior Mobile Engineer (Flutter | Android). 6+ years, 17+ production apps.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
