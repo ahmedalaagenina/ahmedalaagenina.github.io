@@ -20,6 +20,7 @@ import 'sections/about/about_section.dart';
 import 'sections/experience/experience_section.dart';
 import 'sections/footer/footer.dart';
 import 'sections/hero/hero_section.dart';
+import 'sections/lab/lab_section.dart';
 import 'sections/work/showcase_item.dart';
 import 'sections/work/work_section.dart';
 import 'shell/command_palette.dart';
@@ -340,6 +341,8 @@ class _HomePageState extends State<HomePage> {
                             scroll: _scroll,
                           ),
                         ),
+                        gap,
+                        _section(SectionId.lab, LabSection(copy: _copy.lab)),
                         gap,
                         Footer(
                           identity: _identity,

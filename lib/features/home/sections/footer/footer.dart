@@ -49,9 +49,7 @@ class Footer extends StatelessWidget {
                 children: [
                   if (context.isDesktop)
                     Text(
-                      copy.paletteHint.fill({
-                        'shortcut': paletteShortcutLabel,
-                      }),
+                      copy.paletteHint.fill({'shortcut': paletteShortcutLabel}),
                       style: type.mono,
                     ),
                   _FooterLink(label: copy.allLinks, onTap: onAllLinks),
@@ -84,9 +82,7 @@ class _FooterLink extends StatelessWidget {
         child: Text(
           label,
           style: context.type.label.copyWith(
-            color: states.contains(WidgetState.hovered)
-                ? t.text
-                : t.textMuted,
+            color: states.contains(WidgetState.hovered) ? t.text : t.textMuted,
           ),
         ),
       ),
