@@ -68,31 +68,33 @@ class _RotatingTextState extends State<RotatingText> {
     return Semantics(
       label: widget.texts.join(', '),
       child: ExcludeSemantics(
-        child: ClipRect(
-          child: AnimatedSwitcher(
-            duration: _curve.duration,
-            switchInCurve: _curve,
-            switchOutCurve: Curves.easeIn,
-            layoutBuilder: (current, previous) => Stack(
-              alignment: AlignmentDirectional.centerStart,
-              children: [...previous, ?current],
-            ),
-            transitionBuilder: (child, animation) {
-              final incoming = child.key == ValueKey(_index);
-              final slide = Tween<Offset>(
-                begin: Offset(0, incoming ? 1.0 : -1.0),
-                end: Offset.zero,
-              ).animate(animation);
-              return FadeTransition(
-                opacity: animation,
-                child: SlideTransition(position: slide, child: child),
-              );
-            },
-            child: Text(
-              widget.texts[_index],
-              key: ValueKey(_index),
-              style: widget.style,
-              maxLines: 1,
+        child: RepaintBoundary(
+          child: ClipRect(
+            child: AnimatedSwitcher(
+              duration: _curve.duration,
+              switchInCurve: _curve,
+              switchOutCurve: Curves.easeIn,
+              layoutBuilder: (current, previous) => Stack(
+                alignment: AlignmentDirectional.centerStart,
+                children: [...previous, ?current],
+              ),
+              transitionBuilder: (child, animation) {
+                final incoming = child.key == ValueKey(_index);
+                final slide = Tween<Offset>(
+                  begin: Offset(0, incoming ? 1.0 : -1.0),
+                  end: Offset.zero,
+                ).animate(animation);
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(position: slide, child: child),
+                );
+              },
+              child: Text(
+                widget.texts[_index],
+                key: ValueKey(_index),
+                style: widget.style,
+                maxLines: 1,
+              ),
             ),
           ),
         ),

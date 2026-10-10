@@ -161,7 +161,9 @@ class _NavLink extends StatelessWidget {
                   const SizedBox(height: 6),
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 260),
-                    curve: Curves.easeOutBack,
+                    // No overshooting curve here: animating toward 0 with
+                    // easeOutBack would dip below 0, an invalid width.
+                    curve: Curves.easeOutCubic,
                     width: isActive ? 16 : 0,
                     height: 2,
                     decoration: BoxDecoration(

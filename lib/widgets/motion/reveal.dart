@@ -98,7 +98,9 @@ class _RevealState extends State<Reveal> with SingleTickerProviderStateMixin {
             ),
           );
         },
-        child: child,
+        // Cached during the entrance: only the opacity/transform layers
+        // change per frame, the content's paint is recorded once.
+        child: RepaintBoundary(child: child),
       ),
     );
   }

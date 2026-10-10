@@ -61,11 +61,14 @@ class _MagneticState extends State<Magnetic>
       opaque: false,
       onHover: _onHover,
       onExit: _onExit,
-      child: AnimatedBuilder(
-        animation: _offset,
-        builder: (context, child) =>
-            Transform.translate(offset: _offset.value, child: child),
-        child: widget.child,
+      // Own layer: following the mouse repaints only this button.
+      child: RepaintBoundary(
+        child: AnimatedBuilder(
+          animation: _offset,
+          builder: (context, child) =>
+              Transform.translate(offset: _offset.value, child: child),
+          child: widget.child,
+        ),
       ),
     );
   }

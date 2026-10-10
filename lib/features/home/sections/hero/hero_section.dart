@@ -94,7 +94,7 @@ class _HeroSectionState extends State<HeroSection>
           child: child,
         ),
       ),
-      child: child,
+      child: RepaintBoundary(child: child),
     );
   }
 
@@ -150,7 +150,12 @@ class _HeroSectionState extends State<HeroSection>
                             child: StaggeredText(
                               text: widget.identity.displayName,
                               style: type.hero,
-                              progress: _interval(0, 0.62),
+                              // Linear slice: StaggeredText applies its own
+                              // spring per letter.
+                              progress: CurvedAnimation(
+                                parent: _entrance,
+                                curve: const Interval(0, 0.62),
+                              ),
                             ),
                           ),
                           SizedBox(height: context.pick(18, desktop: 26)),

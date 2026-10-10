@@ -115,6 +115,10 @@ class _TiltState extends State<Tilt> with SingleTickerProviderStateMixin {
       child: widget.child,
     );
 
+    // Own layer: the transform changes every frame while tilting, and must
+    // not drag the surrounding section into a repaint.
+    result = RepaintBoundary(child: result);
+
     if (widget.input == null) {
       result = MouseRegion(
         opaque: false,

@@ -97,10 +97,10 @@ class _StaggeredTextState extends State<StaggeredText> {
                 char: char,
                 style: widget.style,
                 rise: widget.rise * (widget.style.fontSize ?? 14),
-                animation: CurvedAnimation(
-                  parent: widget.progress,
-                  curve: Interval(start, end.clamp(0.0, 1.0), curve: _curve),
-                ),
+                progress: widget.progress,
+                start: start,
+                end: end.clamp(0.0, 1.0),
+                curve: _curve,
               ),
             ),
           );
@@ -110,10 +110,12 @@ class _StaggeredTextState extends State<StaggeredText> {
         return Semantics(
           label: widget.text,
           child: ExcludeSemantics(
-            child: SizedBox(
-              width: size.width,
-              height: size.height,
-              child: Stack(clipBehavior: Clip.none, children: letters),
+            child: RepaintBoundary(
+              child: SizedBox(
+                width: size.width,
+                height: size.height,
+                child: Stack(clipBehavior: Clip.none, children: letters),
+              ),
             ),
           ),
         );
@@ -127,21 +129,38 @@ class _Letter extends StatelessWidget {
     required this.char,
     required this.style,
     required this.rise,
-    required this.animation,
+    required this.progress,
+    required this.start,
+    required this.end,
+    required this.curve,
   });
 
   final String char;
   final TextStyle style;
   final double rise;
-  final Animation<double> animation;
+  final Animation<double> progress;
+  final double start;
+  final double end;
+  final Curve curve;
+
+  /// Maps the shared progress into this letter's slice, then applies the
+  /// spring. The parent value is clamped first: if a caller passes an
+  /// animation that overshoots (a spring-curved one can reach 1.0003), a
+  /// Curve would assert on the out-of-range input. Overshooting curves must
+  /// never be the *input* of another curve.
+  double _value() {
+    final p = progress.value.clamp(0.0, 1.0);
+    final local = ((p - start) / (end - start)).clamp(0.0, 1.0);
+    return curve.transform(local);
+  }
 
   @override
   Widget build(BuildContext context) {
     // Only opacity and transform change per frame: no text re-layout.
     return AnimatedBuilder(
-      animation: animation,
+      animation: progress,
       builder: (context, child) {
-        final t = animation.value;
+        final t = _value();
         return Opacity(
           opacity: t.clamp(0.0, 1.0),
           child: Transform.translate(

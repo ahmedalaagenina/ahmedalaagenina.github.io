@@ -100,96 +100,100 @@ class _TerminalTypingState extends State<TerminalTyping>
     return Semantics(
       label: widget.semanticLabel,
       child: ExcludeSemantics(
-        child: Container(
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(Radii.l),
-            border: Border.all(color: const Color(0xFF232B3B)),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Color(0xFF1B2230))),
-                ),
-                child: Row(
-                  children: [
-                    for (var i = 0; i < 3; i++)
-                      Container(
-                        width: 10,
-                        height: 10,
-                        margin: const EdgeInsets.only(right: 7),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF2B3446),
-                          shape: BoxShape.circle,
+        child: RepaintBoundary(
+          child: Container(
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(Radii.l),
+              border: Border.all(color: const Color(0xFF232B3B)),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: Color(0xFF1B2230)),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < 3; i++)
+                        Container(
+                          width: 10,
+                          height: 10,
+                          margin: const EdgeInsets.only(right: 7),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF2B3446),
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, _) {
-                    final v = _controller.value;
-                    final typed = (v / _typingEnd).clamp(0.0, 1.0);
-                    final chars = (widget.command.length * typed).round();
-                    final total = _controller.duration!.inMilliseconds;
-                    final elapsed = v * total;
-                    final outputStart =
-                        widget.command.length * _perChar + _pause;
-                    final lines = elapsed < outputStart
-                        ? 0
-                        : ((elapsed - outputStart) / _perLine).floor() + 1;
-                    final done = v >= 1;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: r'$ ',
-                                style: TextStyle(color: t.signal),
-                              ),
-                              TextSpan(
-                                text: widget.command.substring(0, chars),
-                              ),
-                              if (!done || chars < widget.command.length)
-                                const TextSpan(
-                                  text: '█',
-                                  style: TextStyle(color: Color(0xFF6C7891)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
+                  child: AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, _) {
+                      final v = _controller.value;
+                      final typed = (v / _typingEnd).clamp(0.0, 1.0);
+                      final chars = (widget.command.length * typed).round();
+                      final total = _controller.duration!.inMilliseconds;
+                      final elapsed = v * total;
+                      final outputStart =
+                          widget.command.length * _perChar + _pause;
+                      final lines = elapsed < outputStart
+                          ? 0
+                          : ((elapsed - outputStart) / _perLine).floor() + 1;
+                      final done = v >= 1;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: r'$ ',
+                                  style: TextStyle(color: t.signal),
                                 ),
-                            ],
-                          ),
-                          style: mono,
-                        ),
-                        for (
-                          var i = 0;
-                          i < widget.output.length && i < lines;
-                          i++
-                        )
-                          _Line(
-                            text: widget.output[i],
-                            style: mono.copyWith(
-                              color: i == widget.output.length - 1
-                                  ? t.success
-                                  : const Color(0xFF8A94A8),
+                                TextSpan(
+                                  text: widget.command.substring(0, chars),
+                                ),
+                                if (!done || chars < widget.command.length)
+                                  const TextSpan(
+                                    text: '█',
+                                    style: TextStyle(color: Color(0xFF6C7891)),
+                                  ),
+                              ],
                             ),
+                            style: mono,
                           ),
-                      ],
-                    );
-                  },
+                          for (
+                            var i = 0;
+                            i < widget.output.length && i < lines;
+                            i++
+                          )
+                            _Line(
+                              text: widget.output[i],
+                              style: mono.copyWith(
+                                color: i == widget.output.length - 1
+                                    ? t.success
+                                    : const Color(0xFF8A94A8),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

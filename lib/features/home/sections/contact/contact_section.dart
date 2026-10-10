@@ -150,7 +150,14 @@ class _EmailCapsuleState extends State<_EmailCapsule> {
   }
 
   Future<void> _copy() async {
-    await Clipboard.setData(ClipboardData(text: widget.email));
+    try {
+      await Clipboard.setData(ClipboardData(text: widget.email));
+    } catch (_) {
+      // The browser refused clipboard access (permissions, insecure
+      // context). The address stays visible on screen, so just don't claim
+      // it was copied.
+      return;
+    }
     HapticFeedback.lightImpact();
     if (!mounted) return;
     setState(() => _copied = true);

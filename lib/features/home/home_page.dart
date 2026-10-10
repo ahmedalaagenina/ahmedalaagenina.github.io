@@ -151,7 +151,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _copyEmail() async {
-    await Clipboard.setData(ClipboardData(text: _identity.email));
+    try {
+      await Clipboard.setData(ClipboardData(text: _identity.email));
+    } catch (_) {
+      return; // clipboard blocked by the browser: don't claim success
+    }
     if (mounted) {
       showToast(
         context,
@@ -284,8 +288,13 @@ class _HomePageState extends State<HomePage> {
     DebugPaintScope.maybeOf(context)?.registerDeveloperTap(context);
   }
 
-  Widget _section(SectionId id, Widget child) =>
-      KeyedSubtree(key: _keys[id], child: child);
+  /// Each section gets its own repaint boundary. SingleChildScrollView
+  /// (unlike ListView) adds none, so without them every scroll frame would
+  /// re-record the paint commands of the entire page.
+  Widget _section(SectionId id, Widget child) => KeyedSubtree(
+    key: _keys[id],
+    child: RepaintBoundary(child: child),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -327,9 +336,11 @@ class _HomePageState extends State<HomePage> {
                             onDownloadCv: _downloadCv,
                           ),
                         ),
-                        AboutSection(
-                          copy: _copy.about,
-                          summary: Portfolio.summary,
+                        RepaintBoundary(
+                          child: AboutSection(
+                            copy: _copy.about,
+                            summary: Portfolio.summary,
+                          ),
                         ),
                         gap,
                         _section(
@@ -396,11 +407,13 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         gap,
-                        Footer(
-                          identity: _identity,
-                          copy: _copy.footer,
-                          onBackToTop: () => _scrollTo(SectionId.home),
-                          onAllLinks: () => context.go('/links'),
+                        RepaintBoundary(
+                          child: Footer(
+                            identity: _identity,
+                            copy: _copy.footer,
+                            onBackToTop: () => _scrollTo(SectionId.home),
+                            onAllLinks: () => context.go('/links'),
+                          ),
                         ),
                       ],
                     ),
@@ -425,15 +438,18 @@ class _HomePageState extends State<HomePage> {
                   onOpenMenu: _openMenu,
                 ),
               ),
-              Positioned(
-                right: context.gutter,
-                bottom: context.gutter,
-                child: _BackToTop(
-                  visible: _showBackToTop,
-                  label: _copy.footer.backToTop,
-                  onTap: () => _scrollTo(SectionId.home),
+              // Phones skip the floating button: it would cover content
+              // (like the map controls); the logo and footer go to the top.
+              if (!context.isMobile)
+                Positioned(
+                  right: context.gutter,
+                  bottom: context.gutter,
+                  child: _BackToTop(
+                    visible: _showBackToTop,
+                    label: _copy.footer.backToTop,
+                    onTap: () => _scrollTo(SectionId.home),
+                  ),
                 ),
-              ),
               if (_showIntro)
                 Positioned.fill(
                   child: IntroOverlay(

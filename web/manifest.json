@@ -1,11 +1,11 @@
 {
-    "name": "Ahmed Alaa — Senior Mobile Engineer",
+    "name": "Ahmed Alaa | Senior Mobile Engineer",
     "short_name": "Ahmed Alaa",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#060A14",
-    "theme_color": "#060A14",
-    "description": "Portfolio & CV of Ahmed Alaa — Senior Mobile Engineer (Flutter | Android). 6+ years, 17+ production apps.",
+    "background_color": "#070A12",
+    "theme_color": "#070A12",
+    "description": "Portfolio of Ahmed Alaa, Senior Mobile Engineer (Flutter | Android). ~6 years, 20+ production apps.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

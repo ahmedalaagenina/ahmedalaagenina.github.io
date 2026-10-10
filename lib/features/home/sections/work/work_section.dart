@@ -69,6 +69,11 @@ class _WorkSectionState extends State<WorkSection> {
     super.initState();
     widget.scroll.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => _onScroll());
+    // Decode the screenshots in idle time after the intro, not in the
+    // middle of the visitor's first scroll into this section.
+    Future<void>.delayed(const Duration(milliseconds: 1800), () {
+      if (mounted && !_load) setState(() => _load = true);
+    });
   }
 
   @override
@@ -214,42 +219,45 @@ class _WorkSectionState extends State<WorkSection> {
             top: 0,
             right: 0,
             width: phoneColumn,
-            child: ValueListenableBuilder<double>(
-              valueListenable: _phoneTop,
-              builder: (context, top, child) =>
-                  Transform.translate(offset: Offset(0, top), child: child),
-              child: ExcludeSemantics(
-                child: ValueListenableBuilder<int>(
-                  valueListenable: _active,
-                  builder: (context, active, _) => Column(
-                    children: [
-                      Tilt(
-                        input: _tilt,
-                        maxAngle: 0.16,
-                        overlayBuilder: (context, t) =>
-                            _Glare(tilt: t, radius: _phoneWidth * 0.16),
-                        child: PhoneFrame(
-                          width: _phoneWidth,
-                          glowColor: Color(widget.items[active].entry.tint),
-                          screen: _SwitchingScreen(
-                            item: widget.items[active],
-                            index: active,
-                            load: _load,
-                            cycle: visible,
-                            decodeWidth: (_phoneWidth * dpr).round(),
+            // Own layer: pinning moves the phone every scroll frame.
+            child: RepaintBoundary(
+              child: ValueListenableBuilder<double>(
+                valueListenable: _phoneTop,
+                builder: (context, top, child) =>
+                    Transform.translate(offset: Offset(0, top), child: child),
+                child: ExcludeSemantics(
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: _active,
+                    builder: (context, active, _) => Column(
+                      children: [
+                        Tilt(
+                          input: _tilt,
+                          maxAngle: 0.16,
+                          overlayBuilder: (context, t) =>
+                              _Glare(tilt: t, radius: _phoneWidth * 0.16),
+                          child: PhoneFrame(
+                            width: _phoneWidth,
+                            glowColor: Color(widget.items[active].entry.tint),
+                            screen: _SwitchingScreen(
+                              item: widget.items[active],
+                              index: active,
+                              load: _load,
+                              cycle: visible,
+                              decodeWidth: (_phoneWidth * dpr).round(),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 28),
-                      _Dots(
-                        count: widget.items.length,
-                        active: active,
-                        labels: [
-                          for (final item in widget.items) item.product.name,
-                        ],
-                        onTap: _scrollToEntry,
-                      ),
-                    ],
+                        const SizedBox(height: 28),
+                        _Dots(
+                          count: widget.items.length,
+                          active: active,
+                          labels: [
+                            for (final item in widget.items) item.product.name,
+                          ],
+                          onTap: _scrollToEntry,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -520,6 +528,7 @@ class _MobileEntryState extends State<_MobileEntry> {
   void initState() {
     super.initState();
     widget.scroll.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onScroll());
   }
 
   @override
@@ -529,12 +538,18 @@ class _MobileEntryState extends State<_MobileEntry> {
     super.dispose();
   }
 
+  /// One measurement per scroll event drives both the tilt and the
+  /// visibility flag (no separate VisibilityDetector per card).
   void _onScroll() {
-    if (!_visible || !mounted) return;
+    if (!mounted) return;
     final box = context.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     final viewport = MediaQuery.sizeOf(context).height;
-    final center = box.localToGlobal(Offset.zero).dy + box.size.height * 0.3;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final visible = top < viewport && top + box.size.height > 0;
+    if (visible != _visible) setState(() => _visible = visible);
+    if (!visible) return;
+    final center = top + box.size.height * 0.3;
     final d = (center - viewport / 2) / viewport;
     _tilt.value = Offset(0, (d * 1.4).clamp(-1.0, 1.0));
   }
@@ -543,35 +558,31 @@ class _MobileEntryState extends State<_MobileEntry> {
   Widget build(BuildContext context) {
     final width = math.min(260.0, MediaQuery.sizeOf(context).width * 0.66);
     final dpr = MediaQuery.devicePixelRatioOf(context);
-    return VisibilityGate(
-      builder: (context, visible) {
-        _visible = visible;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: ExcludeSemantics(
-                child: Tilt(
-                  input: _tilt,
-                  maxAngle: 0.2,
-                  child: PhoneFrame(
-                    width: width,
-                    glowColor: Color(widget.item.entry.tint),
-                    screen: ShowcaseScreen(
-                      item: widget.item,
-                      load: widget.load,
-                      cycle: visible,
-                      decodeWidth: (width * dpr).round(),
-                    ),
-                  ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Center(
+          child: ExcludeSemantics(
+            child: Tilt(
+              input: _tilt,
+              maxAngle: 0.2,
+              child: PhoneFrame(
+                width: width,
+                lowCost: true,
+                glowColor: Color(widget.item.entry.tint),
+                screen: ShowcaseScreen(
+                  item: widget.item,
+                  load: widget.load,
+                  cycle: _visible,
+                  decodeWidth: (width * dpr).round(),
                 ),
               ),
             ),
-            const SizedBox(height: 36),
-            _EntryDetails(item: widget.item, common: widget.common),
-          ],
-        );
-      },
+          ),
+        ),
+        const SizedBox(height: 36),
+        _EntryDetails(item: widget.item, common: widget.common),
+      ],
     );
   }
 }

@@ -33,8 +33,8 @@ class FleetDemo extends StatefulWidget {
   State<FleetDemo> createState() => _FleetDemoState();
 }
 
-class _FleetDemoState extends State<FleetDemo>
-    with SingleTickerProviderStateMixin {
+// Two tickers (frame loop + zoom controller), so the multi-ticker mixin.
+class _FleetDemoState extends State<FleetDemo> with TickerProviderStateMixin {
   static const _pollEvery = Duration(seconds: 1);
   static const _minZoom = 1.0;
   static const _maxZoom = 6.0;

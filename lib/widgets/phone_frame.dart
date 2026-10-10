@@ -14,6 +14,7 @@ class PhoneFrame extends StatelessWidget {
     this.width = 300,
     this.glow = true,
     this.glowColor,
+    this.lowCost = false,
   });
 
   final Widget screen;
@@ -24,6 +25,11 @@ class PhoneFrame extends StatelessWidget {
 
   /// Glow color; defaults to the accent.
   final Color? glowColor;
+
+  /// One small shadow instead of two large blurs. CanvasKit has no raster
+  /// cache, so a tilting phone replays its blurs every frame; on phones,
+  /// where several frames are on screen while scrolling, that adds up.
+  final bool lowCost;
 
   /// Height / width of a current 6.1" phone, rounded.
   static const double aspectRatio = 2.12;
@@ -73,24 +79,34 @@ class PhoneFrame extends StatelessWidget {
                 color: t.phoneBody,
                 borderRadius: BorderRadius.circular(outerRadius),
                 border: Border.all(color: const Color(0xFF353D50), width: 1.2),
-                boxShadow: [
-                  if (glow)
-                    BoxShadow(
-                      color: (glowColor ?? t.signal).withValues(
-                        alpha: context.isDark ? 0.22 : 0.16,
-                      ),
-                      blurRadius: width * 0.3,
-                      spreadRadius: -width * 0.04,
-                      offset: Offset(0, width * 0.12),
-                    ),
-                  BoxShadow(
-                    color: Colors.black.withValues(
-                      alpha: context.isDark ? 0.45 : 0.2,
-                    ),
-                    blurRadius: width * 0.1,
-                    offset: Offset(0, width * 0.06),
-                  ),
-                ],
+                boxShadow: lowCost
+                    ? [
+                        BoxShadow(
+                          color: (glowColor ?? t.signal).withValues(
+                            alpha: context.isDark ? 0.18 : 0.12,
+                          ),
+                          blurRadius: width * 0.12,
+                          offset: Offset(0, width * 0.06),
+                        ),
+                      ]
+                    : [
+                        if (glow)
+                          BoxShadow(
+                            color: (glowColor ?? t.signal).withValues(
+                              alpha: context.isDark ? 0.22 : 0.16,
+                            ),
+                            blurRadius: width * 0.3,
+                            spreadRadius: -width * 0.04,
+                            offset: Offset(0, width * 0.12),
+                          ),
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                            alpha: context.isDark ? 0.45 : 0.2,
+                          ),
+                          blurRadius: width * 0.1,
+                          offset: Offset(0, width * 0.06),
+                        ),
+                      ],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(innerRadius),

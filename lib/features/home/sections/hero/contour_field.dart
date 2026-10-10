@@ -149,7 +149,7 @@ class _ContourFieldState extends State<ContourField>
               background: t.background,
               line: t.textMuted,
               glow: t.signal,
-              lineAlpha: context.isDark ? 0.13 : 0.15,
+              lineAlpha: context.isDark ? 0.13 : 0.1,
             ),
           );
         },
