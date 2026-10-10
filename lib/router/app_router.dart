@@ -8,4 +8,7 @@ final appRouter = GoRouter(
     GoRoute(path: '/', builder: (context, state) => const HomePage()),
     GoRoute(path: '/links', builder: (context, state) => const LinksPage()),
   ],
+  // Unknown paths (typos, old URLs) land on the home page instead of an
+  // error screen.
+  onException: (context, state, router) => router.go('/'),
 );

@@ -1,24 +1,34 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/launcher.dart';
+import '../../core/motion/springs.dart';
 import '../../core/responsive.dart';
-import '../../data/cv_data.dart';
+import '../../data/portfolio_data.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/command_palette.dart';
-import 'widgets/contact_section.dart';
-import 'widgets/education_section.dart';
-import 'widgets/experience_section.dart';
-import 'widgets/footer.dart';
-import 'widgets/hero_section.dart';
-import 'widgets/nav_bar.dart';
-import 'widgets/open_source_section.dart';
-import 'widgets/projects_section.dart';
-import 'widgets/skills_section.dart';
-import 'widgets/stats_section.dart';
+import '../../theme/theme_cubit.dart';
+import '../../widgets/buttons.dart';
+import '../../widgets/icons/brand_icons.dart';
+import '../../widgets/phone_picker.dart';
+import '../../widgets/toast.dart';
+import '../easter_egg/debug_paint.dart';
+import '../intro/intro_overlay.dart';
+import 'sections/about/about_section.dart';
+import 'sections/footer/footer.dart';
+import 'sections/hero/hero_section.dart';
+import 'shell/command_palette.dart';
+import 'shell/mobile_menu.dart';
+import 'shell/nav_bar.dart';
+import 'shell/section_id.dart';
 
+/// Composition root of the home page.
+///
+/// This is the only widget that reads `Portfolio` (the data layer). Every
+/// section receives exactly the data it renders through its constructor, so
+/// sections stay reusable and testable with fake content.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -27,28 +37,24 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final ScrollController _scroll = ScrollController();
+  static const _identity = Portfolio.identity;
+  static const _copy = Portfolio.copy;
 
-  final _heroKey = GlobalKey();
-  final _experienceKey = GlobalKey();
-  final _projectsKey = GlobalKey();
-  final _skillsKey = GlobalKey();
-  final _openSourceKey = GlobalKey();
-  final _educationKey = GlobalKey();
-  final _contactKey = GlobalKey();
+  /// The intro plays once per visit, not every time /links navigates back.
+  static bool _introPlayed = false;
 
-  bool _scrolled = false;
-  bool _heroVisible = true;
-  String _activeSection = 'Home';
+  final _scroll = ScrollController();
+  final _keys = {for (final id in SectionId.values) id: GlobalKey()};
+  final _logoKey = GlobalKey();
 
-  late final List<NavItem> _navItems = [
-    NavItem(label: 'Home', targetKey: _heroKey),
-    NavItem(label: 'Experience', targetKey: _experienceKey),
-    NavItem(label: 'Projects', targetKey: _projectsKey),
-    NavItem(label: 'Skills', targetKey: _skillsKey),
-    NavItem(label: 'Education', targetKey: _educationKey),
-    NavItem(label: 'Contact', targetKey: _contactKey),
-  ];
+  // Scroll-derived UI state lives in notifiers, not setState: only the
+  // widgets listening to them rebuild while scrolling, never the page.
+  final _scrolled = ValueNotifier(false);
+  final _showBackToTop = ValueNotifier(false);
+  final _active = ValueNotifier(SectionId.home);
+  final _heroStart = ValueNotifier(_introPlayed);
+  final _logoVisible = ValueNotifier(_introPlayed);
+  late bool _showIntro = !_introPlayed;
 
   @override
   void initState() {
@@ -58,102 +64,195 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    _scroll.removeListener(_onScroll);
     _scroll.dispose();
+    for (final n in [_scrolled, _showBackToTop, _heroStart, _logoVisible]) {
+      n.dispose();
+    }
+    _active.dispose();
     super.dispose();
   }
 
   void _onScroll() {
     final offset = _scroll.offset;
-    final vh = _heroKey.currentContext?.size?.height ?? 800;
+    final viewport = _scroll.position.viewportDimension;
+    _scrolled.value = offset > 8;
+    _showBackToTop.value = offset > viewport * 1.2;
 
-    final scrolled = offset > 12;
-    final heroVisible = offset < vh;
-    if (scrolled != _scrolled || heroVisible != _heroVisible) {
-      setState(() {
-        _scrolled = scrolled;
-        _heroVisible = heroVisible;
-      });
-    }
-    _updateActiveSection();
-  }
-
-  void _updateActiveSection() {
-    String active = _navItems.first.label;
-    for (final item in _navItems) {
-      final ctx = item.targetKey.currentContext;
-      if (ctx == null) continue;
-      final box = ctx.findRenderObject() as RenderBox?;
+    var current = SectionId.home;
+    for (final id in SectionId.values) {
+      final box = _keys[id]!.currentContext?.findRenderObject() as RenderBox?;
       if (box == null || !box.attached) continue;
-      if (box.localToGlobal(Offset.zero).dy <= 120) active = item.label;
+      if (box.localToGlobal(Offset.zero).dy <= NavBar.height + viewport * .35) {
+        current = id;
+      }
     }
-    if (active != _activeSection) {
-      setState(() => _activeSection = active);
-    }
+    _active.value = current;
   }
 
-  void _scrollTo(GlobalKey key) {
-    final ctx = key.currentContext;
-    if (ctx == null) return;
-    Scrollable.ensureVisible(
-      ctx,
-      duration: const Duration(milliseconds: 550),
+  void _scrollTo(SectionId id) {
+    if (id == SectionId.home) return _animateTo(0);
+    final box = _keys[id]!.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    final top = box.localToGlobal(Offset.zero).dy;
+    final target = (_scroll.offset + top - NavBar.height - 24).clamp(
+      0.0,
+      _scroll.position.maxScrollExtent,
+    );
+    _animateTo(target);
+  }
+
+  void _animateTo(double target) {
+    if (context.reduceMotion) return _scroll.jumpTo(target);
+    final distance = (target - _scroll.offset).abs();
+    _scroll.animateTo(
+      target,
+      duration: Duration(
+        milliseconds: (380 + distance * 0.12).clamp(380, 900).round(),
+      ),
       curve: Curves.easeInOutCubic,
     );
   }
 
-  void _openPalette() {
-    CommandPalette.show(context, [
-      for (final item in _navItems)
-        CommandItem(
-          label: item.label,
-          hint: 'Section',
-          icon: FontAwesomeIcons.arrowRight,
-          action: () => _scrollTo(item.targetKey),
-        ),
-      CommandItem(
-        label: 'Quick Links',
-        hint: 'Page',
-        icon: FontAwesomeIcons.link,
-        action: () => context.go('/links'),
-      ),
-      CommandItem(
-        label: 'Download CV',
-        hint: 'PDF',
-        icon: FontAwesomeIcons.fileArrowDown,
-        action: () => Launcher.open(CV.cvUrl),
-      ),
-      CommandItem(
-        label: 'GitHub',
-        hint: 'External',
-        icon: FontAwesomeIcons.github,
-        action: () => Launcher.open(CV.githubUrl),
-      ),
-      CommandItem(
-        label: 'LinkedIn',
-        hint: 'External',
-        icon: FontAwesomeIcons.linkedinIn,
-        action: () => Launcher.open(CV.linkedinUrl),
-      ),
-      CommandItem(
-        label: 'Send Email',
-        hint: CV.email,
-        icon: FontAwesomeIcons.envelope,
-        action: Launcher.email,
-      ),
-      CommandItem(
-        label: 'WhatsApp',
-        hint: 'Chat',
-        icon: FontAwesomeIcons.whatsapp,
-        action: () => Launcher.whatsapp(context),
-      ),
-    ]);
+  Future<void> _copyEmail() async {
+    await Clipboard.setData(ClipboardData(text: _identity.email));
+    if (mounted) {
+      showToast(
+        context,
+        _copy.contact.emailCopiedToast,
+        icon: Icons.check_rounded,
+      );
+    }
   }
+
+  void _downloadCv() => Launcher.downloadCv(_identity);
+
+  void _whatsApp() => pickPhone(
+    context,
+    title: _copy.contact.whatsApp,
+    subtitle: _copy.contact.chooseNumber,
+    phones: _identity.phones,
+    onPick: Launcher.whatsApp,
+  );
+
+  void _call() => pickPhone(
+    context,
+    title: _copy.contact.call,
+    subtitle: _copy.contact.chooseNumber,
+    phones: _identity.phones,
+    onPick: Launcher.call,
+  );
+
+  void _openPalette() {
+    final dark = context.isDark;
+    final common = _copy.common;
+    CommandPalette.show(
+      context,
+      copy: _copy.palette,
+      groups: [
+        PaletteGroup(
+          title: _copy.palette.sectionsGroup,
+          items: [
+            for (final id in SectionId.values)
+              PaletteItem(
+                label: id.label(_copy.nav),
+                icon: const Icon(Icons.tag_rounded),
+                onSelect: () => _scrollTo(id),
+              ),
+          ],
+        ),
+        PaletteGroup(
+          title: _copy.palette.actionsGroup,
+          items: [
+            PaletteItem(
+              label: dark
+                  ? _copy.palette.switchToLight
+                  : _copy.palette.switchToDark,
+              icon: const Icon(Icons.contrast_rounded),
+              keywords: const ['theme', 'dark', 'light'],
+              onSelect: () => context.read<ThemeCubit>().toggle(),
+            ),
+            PaletteItem(
+              label: _copy.contact.copyEmail,
+              hint: _identity.email,
+              icon: const Icon(Icons.content_copy_rounded),
+              keywords: const ['mail', 'contact'],
+              onSelect: _copyEmail,
+            ),
+            PaletteItem(
+              label: common.downloadCv,
+              icon: const Icon(Icons.download_rounded),
+              keywords: const ['resume', 'pdf'],
+              onSelect: _downloadCv,
+            ),
+            PaletteItem(
+              label: _copy.contact.sendEmail,
+              icon: const Icon(Icons.mail_outline_rounded),
+              keywords: const ['contact'],
+              onSelect: () => Launcher.email(_identity.email),
+            ),
+            PaletteItem(
+              label: _copy.contact.whatsApp,
+              icon: const BrandIcon(Brand.whatsApp),
+              keywords: const ['chat', 'message', 'contact'],
+              onSelect: _whatsApp,
+            ),
+            PaletteItem(
+              label: _copy.contact.call,
+              icon: const Icon(Icons.call_outlined),
+              keywords: const ['phone', 'contact'],
+              onSelect: _call,
+            ),
+          ],
+        ),
+        PaletteGroup(
+          title: _copy.palette.linksGroup,
+          items: [
+            PaletteItem(
+              label: common.linkedIn,
+              icon: const BrandIcon(Brand.linkedIn),
+              onSelect: () => Launcher.open(_identity.linkedInUrl),
+            ),
+            PaletteItem(
+              label: common.gitHub,
+              icon: const BrandIcon(Brand.gitHub),
+              onSelect: () => Launcher.open(_identity.gitHubUrl),
+            ),
+            PaletteItem(
+              label: Portfolio.openSource.name,
+              hint: 'pub.dev',
+              icon: const BrandIcon(Brand.dart),
+              onSelect: () => Launcher.open(Portfolio.openSource.pubDevUrl),
+            ),
+            PaletteItem(
+              label: _copy.palette.openLinksPage,
+              icon: const Icon(Icons.link_rounded),
+              onSelect: () => context.go('/links'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _openMenu() => showMobileMenu(
+    context,
+    copy: _copy.nav,
+    downloadLabel: _copy.common.downloadCv,
+    onSelect: _scrollTo,
+    onDownloadCv: _downloadCv,
+  );
+
+  void _onLogoTap() {
+    _scrollTo(SectionId.home);
+    DebugPaintScope.maybeOf(context)?.registerDeveloperTap(context);
+  }
+
+  Widget _section(SectionId id, Widget child) =>
+      KeyedSubtree(key: _keys[id], child: child);
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    final sectionGap = context.pick(desktop: 110.0, mobile: 72.0);
+    final gap = SizedBox(height: context.sectionGap);
 
     return CallbackShortcuts(
       bindings: {
@@ -165,72 +264,45 @@ class _HomePageState extends State<HomePage> {
       child: Focus(
         autofocus: true,
         child: Scaffold(
-          backgroundColor: t.background,
-          floatingActionButton: _scrolled
-              ? FloatingActionButton.small(
-                  onPressed: () => _scrollTo(_heroKey),
-                  backgroundColor: t.surface,
-                  foregroundColor: t.textPrimary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: t.glassBorder),
-                  ),
-                  child: const Icon(Icons.keyboard_arrow_up_rounded),
-                )
-              : null,
           body: Stack(
             children: [
               ScrollConfiguration(
                 behavior: ScrollConfiguration.of(
                   context,
                 ).copyWith(scrollbars: false),
-                child: SingleChildScrollView(
+                child: PrimaryScrollController(
                   controller: _scroll,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      KeyedSubtree(
-                        key: _heroKey,
-                        child: HeroSection(
-                          particlesActive: _heroVisible,
-                          onViewWork: () => _scrollTo(_projectsKey),
-                          onContact: () => _scrollTo(_contactKey),
+                  automaticallyInheritForPlatforms: TargetPlatform.values
+                      .toSet(),
+                  child: SingleChildScrollView(
+                    primary: true,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _section(
+                          SectionId.home,
+                          HeroSection(
+                            identity: _identity,
+                            copy: _copy.hero,
+                            start: _heroStart,
+                            topInset: NavBar.height,
+                            onSeeWork: () => _scrollTo(SectionId.work),
+                            onDownloadCv: _downloadCv,
+                          ),
                         ),
-                      ),
-                      const StatsSection(),
-                      SizedBox(height: sectionGap),
-                      KeyedSubtree(
-                        key: _experienceKey,
-                        child: const ExperienceSection(),
-                      ),
-                      SizedBox(height: sectionGap),
-                      KeyedSubtree(
-                        key: _projectsKey,
-                        child: const ProjectsSection(),
-                      ),
-                      SizedBox(height: sectionGap),
-                      KeyedSubtree(
-                        key: _skillsKey,
-                        child: const SkillsSection(),
-                      ),
-                      SizedBox(height: sectionGap),
-                      KeyedSubtree(
-                        key: _openSourceKey,
-                        child: const OpenSourceSection(),
-                      ),
-                      SizedBox(height: sectionGap),
-                      KeyedSubtree(
-                        key: _educationKey,
-                        child: const EducationSection(),
-                      ),
-                      SizedBox(height: sectionGap),
-                      KeyedSubtree(
-                        key: _contactKey,
-                        child: const ContactSection(),
-                      ),
-                      SizedBox(height: sectionGap),
-                      const Footer(),
-                    ],
+                        AboutSection(
+                          copy: _copy.about,
+                          summary: Portfolio.summary,
+                        ),
+                        gap,
+                        Footer(
+                          identity: _identity,
+                          copy: _copy.footer,
+                          onBackToTop: () => _scrollTo(SectionId.home),
+                          onAllLinks: () => context.go('/links'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -239,15 +311,89 @@ class _HomePageState extends State<HomePage> {
                 left: 0,
                 right: 0,
                 child: NavBar(
-                  items: _navItems,
+                  logoKey: _logoKey,
+                  copy: _copy.nav,
+                  paletteCopy: _copy.palette,
+                  logo: _identity.logo,
+                  logoVisible: _logoVisible,
                   scrolled: _scrolled,
-                  activeSection: _activeSection,
-                  onTapItem: (item) => _scrollTo(item.targetKey),
+                  active: _active,
+                  onSelect: _scrollTo,
+                  onLogoTap: _onLogoTap,
                   onOpenPalette: _openPalette,
+                  onOpenMenu: _openMenu,
                 ),
               ),
+              Positioned(
+                right: context.gutter,
+                bottom: context.gutter,
+                child: _BackToTop(
+                  visible: _showBackToTop,
+                  label: _copy.footer.backToTop,
+                  onTap: () => _scrollTo(SectionId.home),
+                ),
+              ),
+              if (_showIntro)
+                Positioned.fill(
+                  child: IntroOverlay(
+                    logo: _identity.logo,
+                    targetKey: _logoKey,
+                    onHandoff: () => _heroStart.value = true,
+                    onFinished: () {
+                      _introPlayed = true;
+                      _heroStart.value = true;
+                      _logoVisible.value = true;
+                      setState(() => _showIntro = false);
+                    },
+                  ),
+                ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BackToTop extends StatelessWidget {
+  const _BackToTop({
+    required this.visible,
+    required this.label,
+    required this.onTap,
+  });
+
+  final ValueListenable<bool> visible;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return ValueListenableBuilder<bool>(
+      valueListenable: visible,
+      builder: (context, show, child) => IgnorePointer(
+        ignoring: !show,
+        child: AnimatedScale(
+          scale: show ? 1 : 0.6,
+          duration: const Duration(milliseconds: 320),
+          curve: show ? SpringCurve(Springs.playful) : Curves.easeIn,
+          child: AnimatedOpacity(
+            opacity: show ? 1 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: child,
+          ),
+        ),
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: BorderRadius.circular(Radii.m),
+          border: Border.all(color: t.lineStrong),
+        ),
+        child: IconAction(
+          icon: const Icon(Icons.arrow_upward_rounded),
+          label: label,
+          onTap: onTap,
         ),
       ),
     );

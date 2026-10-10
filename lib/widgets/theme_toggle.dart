@@ -1,41 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../data/copy.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_cubit.dart';
+import 'buttons.dart';
 
 class ThemeToggle extends StatelessWidget {
-  const ThemeToggle({super.key});
+  const ThemeToggle({super.key, required this.copy});
+
+  final PaletteCopy copy;
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
-
-    return Tooltip(
-      message: isDark ? 'Light mode' : 'Dark mode',
-      child: InkWell(
-        borderRadius: BorderRadius.circular(100),
-        onTap: () => context.read<ThemeCubit>().toggle(),
-        child: Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: t.glassFill,
-            border: Border.all(color: t.glassBorder),
-          ),
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            transitionBuilder: (child, anim) =>
-                RotationTransition(turns: anim, child: child),
-            child: Icon(
-              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-              key: ValueKey(isDark),
-              size: 18,
-              color: t.textPrimary,
-            ),
-          ),
+    final dark = context.isDark;
+    return IconAction(
+      label: dark ? copy.switchToLight : copy.switchToDark,
+      onTap: () => context.read<ThemeCubit>().toggle(),
+      icon: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 260),
+        switchInCurve: Curves.easeOutBack,
+        transitionBuilder: (child, animation) => RotationTransition(
+          turns: Tween(begin: 0.6, end: 1.0).animate(animation),
+          child: ScaleTransition(scale: animation, child: child),
+        ),
+        child: Icon(
+          dark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+          key: ValueKey(dark),
         ),
       ),
     );

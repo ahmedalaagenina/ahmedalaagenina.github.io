@@ -1,185 +1,292 @@
 import 'package:flutter/material.dart';
 
-/// Extra design tokens not covered by [ColorScheme], resolved per-theme.
+import '../core/responsive.dart';
+
+/// Design tokens for the "Field Mode" identity, resolved per brightness.
+///
+/// Rule of thumb: [signal] is the only accent and is used sparingly.
+/// [offline] is not decoration: it only marks "offline" and "part-time".
 @immutable
 class AppTokens extends ThemeExtension<AppTokens> {
-  final Color background;
-  final Color surface;
-  final Color glassFill;
-  final Color glassBorder;
-  final Color textPrimary;
-  final Color textMuted;
-  final Color accentA;
-  final Color accentB;
-  final Color success;
-
   const AppTokens({
     required this.background,
     required this.surface,
-    required this.glassFill,
-    required this.glassBorder,
-    required this.textPrimary,
+    required this.surfaceRaised,
+    required this.line,
+    required this.lineStrong,
+    required this.text,
     required this.textMuted,
-    required this.accentA,
-    required this.accentB,
+    required this.signal,
+    required this.signalDeep,
+    required this.signalText,
+    required this.onSignal,
+    required this.offline,
     required this.success,
+    required this.phoneBody,
   });
 
-  LinearGradient get accentGradient => LinearGradient(
-        colors: [accentA, accentB],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+  /// Page background ("Night" in dark mode).
+  final Color background;
+
+  /// Panels and cards.
+  final Color surface;
+
+  /// Hover and pressed surfaces, inputs.
+  final Color surfaceRaised;
+
+  /// Hairline borders.
+  final Color line;
+  final Color lineStrong;
+  final Color text;
+  final Color textMuted;
+
+  /// Accent fill (buttons, active states). Paired with [onSignal].
+  final Color signal;
+
+  /// Darker end of the accent gradient.
+  final Color signalDeep;
+
+  /// Accent for small text and links: checked for 4.5:1 contrast on
+  /// [background].
+  final Color signalText;
+  final Color onSignal;
+  final Color offline;
+  final Color success;
+
+  /// The phone mockup stays dark in both themes, like real hardware.
+  final Color phoneBody;
+
+  LinearGradient get signalGradient => LinearGradient(
+    colors: [signalDeep, signal],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
 
   static const dark = AppTokens(
-    background: Color(0xFF060A14),
-    surface: Color(0xFF0C1224),
-    glassFill: Color(0x14FFFFFF),
-    glassBorder: Color(0x2BFFFFFF),
-    textPrimary: Color(0xFFE9EDF8),
-    textMuted: Color(0xFF8C95AC),
-    accentA: Color(0xFF818CF8),
-    accentB: Color(0xFF22D3EE),
-    success: Color(0xFF34D399),
+    background: Color(0xFF070A12),
+    surface: Color(0xFF0D121E),
+    surfaceRaised: Color(0xFF151C2B),
+    line: Color(0xFF1C2433),
+    lineStrong: Color(0xFF2C364A),
+    text: Color(0xFFE8EDF6),
+    textMuted: Color(0xFF8A94A8),
+    signal: Color(0xFF13B9FD),
+    signalDeep: Color(0xFF0175C2),
+    signalText: Color(0xFF4CC8FF),
+    onSignal: Color(0xFF04121F),
+    offline: Color(0xFFFFB547),
+    success: Color(0xFF3DDC97),
+    phoneBody: Color(0xFF1A1F2B),
   );
 
   static const light = AppTokens(
-    background: Color(0xFFF6F7FC),
+    background: Color(0xFFF4F6FA),
     surface: Color(0xFFFFFFFF),
-    glassFill: Color(0xCCFFFFFF),
-    glassBorder: Color(0x1F101B3A),
-    textPrimary: Color(0xFF0F1730),
-    textMuted: Color(0xFF5A6478),
-    accentA: Color(0xFF4F46E5),
-    accentB: Color(0xFF0891B2),
-    success: Color(0xFF059669),
+    surfaceRaised: Color(0xFFEAEEF4),
+    line: Color(0xFFDDE3EC),
+    lineStrong: Color(0xFFC3CCDA),
+    text: Color(0xFF0B1220),
+    textMuted: Color(0xFF525D70),
+    signal: Color(0xFF0175C2),
+    signalDeep: Color(0xFF02569B),
+    signalText: Color(0xFF0062A3),
+    onSignal: Color(0xFFFFFFFF),
+    offline: Color(0xFF995A00),
+    success: Color(0xFF0F7A59),
+    phoneBody: Color(0xFF1A1F2B),
   );
 
   @override
-  AppTokens copyWith({
-    Color? background,
-    Color? surface,
-    Color? glassFill,
-    Color? glassBorder,
-    Color? textPrimary,
-    Color? textMuted,
-    Color? accentA,
-    Color? accentB,
-    Color? success,
-  }) {
-    return AppTokens(
-      background: background ?? this.background,
-      surface: surface ?? this.surface,
-      glassFill: glassFill ?? this.glassFill,
-      glassBorder: glassBorder ?? this.glassBorder,
-      textPrimary: textPrimary ?? this.textPrimary,
-      textMuted: textMuted ?? this.textMuted,
-      accentA: accentA ?? this.accentA,
-      accentB: accentB ?? this.accentB,
-      success: success ?? this.success,
-    );
-  }
+  AppTokens copyWith() => this;
 
   @override
   AppTokens lerp(AppTokens? other, double t) {
     if (other == null) return this;
+    Color l(Color a, Color b) => Color.lerp(a, b, t)!;
     return AppTokens(
-      background: Color.lerp(background, other.background, t)!,
-      surface: Color.lerp(surface, other.surface, t)!,
-      glassFill: Color.lerp(glassFill, other.glassFill, t)!,
-      glassBorder: Color.lerp(glassBorder, other.glassBorder, t)!,
-      textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
-      textMuted: Color.lerp(textMuted, other.textMuted, t)!,
-      accentA: Color.lerp(accentA, other.accentA, t)!,
-      accentB: Color.lerp(accentB, other.accentB, t)!,
-      success: Color.lerp(success, other.success, t)!,
+      background: l(background, other.background),
+      surface: l(surface, other.surface),
+      surfaceRaised: l(surfaceRaised, other.surfaceRaised),
+      line: l(line, other.line),
+      lineStrong: l(lineStrong, other.lineStrong),
+      text: l(text, other.text),
+      textMuted: l(textMuted, other.textMuted),
+      signal: l(signal, other.signal),
+      signalDeep: l(signalDeep, other.signalDeep),
+      signalText: l(signalText, other.signalText),
+      onSignal: l(onSignal, other.onSignal),
+      offline: l(offline, other.offline),
+      success: l(success, other.success),
+      phoneBody: l(phoneBody, other.phoneBody),
     );
   }
 }
 
-abstract final class AppTheme {
-  static const String displayFont = 'SpaceGrotesk';
-  static const String bodyFont = 'Inter';
+/// Font families. Bricolage is only used at 28px and up, where its optical
+/// details read as character. Everything smaller is Geist.
+abstract final class Fonts {
+  static const display = 'BricolageGrotesque';
+  static const body = 'Geist';
+  static const mono = 'GeistMono';
+}
 
+/// Corner radii by hierarchy: bigger containers get rounder corners.
+abstract final class Radii {
+  static const double s = 8;
+  static const double m = 14;
+  static const double l = 22;
+}
+
+/// Responsive type scale. Sizes step with the breakpoint, so headings stay
+/// confident on desktop without overflowing a 360px phone.
+class AppType {
+  AppType._(this._t, this._size);
+
+  factory AppType.of(BuildContext context) =>
+      AppType._(context.tokens, context.formFactor);
+
+  final AppTokens _t;
+  final FormFactor _size;
+
+  double _pick(double mobile, double tablet, double desktop) => switch (_size) {
+    FormFactor.mobile => mobile,
+    FormFactor.tablet => tablet,
+    FormFactor.desktop => desktop,
+  };
+
+  TextStyle _display(double size, FontWeight weight, double height) =>
+      TextStyle(
+        fontFamily: Fonts.display,
+        fontSize: size,
+        fontWeight: weight,
+        height: height,
+        letterSpacing: -size * 0.02,
+        color: _t.text,
+      );
+
+  TextStyle _body(double size, FontWeight weight, double height, Color c) =>
+      TextStyle(
+        fontFamily: Fonts.body,
+        fontSize: size,
+        fontWeight: weight,
+        height: height,
+        color: c,
+      );
+
+  /// The name in the hero.
+  TextStyle get hero => _display(_pick(54, 88, 120), FontWeight.w800, 0.95);
+
+  /// Section titles.
+  TextStyle get display => _display(_pick(36, 48, 64), FontWeight.w700, 1.0);
+
+  /// Closing statement in the contact section.
+  TextStyle get statement => _display(_pick(34, 52, 76), FontWeight.w800, 1.02);
+
+  /// Card titles (role titles, product names in the showcase).
+  TextStyle get headline =>
+      _body(_pick(20, 22, 24), FontWeight.w600, 1.3, _t.text);
+
+  TextStyle get title => _body(17, FontWeight.w600, 1.35, _t.text);
+
+  /// Intro paragraphs and the hero one-liner.
+  TextStyle get lead =>
+      _body(_pick(18, 19, 21), FontWeight.w400, 1.5, _t.textMuted);
+
+  TextStyle get body => _body(16, FontWeight.w400, 1.6, _t.textMuted);
+  TextStyle get bodyStrong => _body(16, FontWeight.w500, 1.6, _t.text);
+  TextStyle get small => _body(14, FontWeight.w400, 1.5, _t.textMuted);
+  TextStyle get label => _body(14, FontWeight.w500, 1.3, _t.text);
+
+  TextStyle get mono => TextStyle(
+    fontFamily: Fonts.mono,
+    fontSize: 13,
+    fontWeight: FontWeight.w500,
+    height: 1.5,
+    color: _t.textMuted,
+  );
+}
+
+abstract final class AppTheme {
   static ThemeData dark() => _build(AppTokens.dark, Brightness.dark);
   static ThemeData light() => _build(AppTokens.light, Brightness.light);
 
   static ThemeData _build(AppTokens t, Brightness brightness) {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: t.accentA,
+    final scheme = ColorScheme(
       brightness: brightness,
+      primary: t.signal,
+      onPrimary: t.onSignal,
+      secondary: t.signalText,
+      onSecondary: t.onSignal,
+      error: const Color(0xFFE5484D),
+      onError: Colors.white,
       surface: t.surface,
-      primary: t.accentA,
-      secondary: t.accentB,
+      onSurface: t.text,
+      onSurfaceVariant: t.textMuted,
+      outline: t.lineStrong,
+      outlineVariant: t.line,
+      surfaceContainerHighest: t.surfaceRaised,
     );
 
-    final textTheme = _textTheme(t);
+    final base = TextStyle(fontFamily: Fonts.body, color: t.text);
 
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
       scaffoldBackgroundColor: t.background,
-      fontFamily: bodyFont,
-      textTheme: textTheme,
-      splashFactory: InkSparkle.splashFactory,
-      dividerColor: t.glassBorder,
-      iconTheme: IconThemeData(color: t.textMuted),
+      fontFamily: Fonts.body,
+      textTheme: TextTheme(
+        bodyLarge: base.copyWith(fontSize: 16),
+        bodyMedium: base.copyWith(fontSize: 15),
+        bodySmall: base.copyWith(fontSize: 13, color: t.textMuted),
+        titleMedium: base.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+        labelLarge: base.copyWith(fontSize: 14, fontWeight: FontWeight.w500),
+      ),
+      // Ink ripples are a Material idiom; this site uses spring press
+      // feedback instead, so ripples are switched off globally.
+      splashFactory: NoSplash.splashFactory,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      focusColor: t.signal.withValues(alpha: .18),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: t.signal,
+        selectionColor: t.signal.withValues(alpha: .28),
+      ),
       tooltipTheme: TooltipThemeData(
+        waitDuration: const Duration(milliseconds: 400),
         decoration: BoxDecoration(
-          color: t.surface,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: t.glassBorder),
+          color: t.surfaceRaised,
+          borderRadius: BorderRadius.circular(Radii.s),
+          border: Border.all(color: t.line),
         ),
-        textStyle: TextStyle(
-          color: t.textPrimary,
-          fontSize: 12,
-          fontFamily: bodyFont,
+        textStyle: base.copyWith(fontSize: 13),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: t.surfaceRaised,
+        contentTextStyle: base.copyWith(fontSize: 14),
+        elevation: 0,
+        width: 420,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.m),
+          side: BorderSide(color: t.lineStrong),
         ),
       ),
-      scrollbarTheme: ScrollbarThemeData(
-        thumbColor: WidgetStatePropertyAll(t.textMuted.withValues(alpha: .3)),
-        radius: const Radius.circular(8),
+      dialogTheme: DialogThemeData(
+        backgroundColor: t.surface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.l),
+          side: BorderSide(color: t.line),
+        ),
       ),
       extensions: [t],
     );
   }
-
-  static TextTheme _textTheme(AppTokens t) {
-    TextStyle display(double size, FontWeight w, {double? height}) => TextStyle(
-          fontFamily: displayFont,
-          fontSize: size,
-          fontWeight: w,
-          color: t.textPrimary,
-          height: height ?? 1.15,
-          letterSpacing: -0.5,
-        );
-    TextStyle body(double size, FontWeight w, {Color? color}) => TextStyle(
-          fontFamily: bodyFont,
-          fontSize: size,
-          fontWeight: w,
-          color: color ?? t.textPrimary,
-          height: 1.6,
-        );
-
-    return TextTheme(
-      displayLarge: display(64, FontWeight.w700),
-      displayMedium: display(48, FontWeight.w700),
-      displaySmall: display(36, FontWeight.w700),
-      headlineMedium: display(28, FontWeight.w600),
-      headlineSmall: display(22, FontWeight.w600),
-      titleLarge: display(18, FontWeight.w600),
-      titleMedium: body(16, FontWeight.w600),
-      titleSmall: body(14, FontWeight.w600),
-      bodyLarge: body(17, FontWeight.w400, color: t.textMuted),
-      bodyMedium: body(15, FontWeight.w400, color: t.textMuted),
-      bodySmall: body(13, FontWeight.w400, color: t.textMuted),
-      labelLarge: body(14, FontWeight.w500),
-      labelMedium: body(12, FontWeight.w500, color: t.textMuted),
-    );
-  }
 }
 
-extension AppTokensX on BuildContext {
+extension AppThemeX on BuildContext {
   AppTokens get tokens => Theme.of(this).extension<AppTokens>()!;
+  AppType get type => AppType.of(this);
+  bool get isDark => Theme.of(this).brightness == Brightness.dark;
 }
