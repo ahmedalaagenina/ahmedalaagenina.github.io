@@ -43,6 +43,11 @@ class _RevealState extends State<Reveal> with SingleTickerProviderStateMixin {
     vsync: this,
   );
   late final Key _key = UniqueKey();
+
+  /// Lets the child keep its State when the wrappers are dropped after the
+  /// entrance: Flutter *reparents* a GlobalKey'd subtree instead of
+  /// rebuilding it, so e.g. an expanded panel inside stays expanded.
+  final GlobalKey _childKey = GlobalKey();
   bool _started = false;
   bool _done = false;
 
@@ -69,7 +74,8 @@ class _RevealState extends State<Reveal> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    if (_done || context.reduceMotion) return widget.child;
+    final child = KeyedSubtree(key: _childKey, child: widget.child);
+    if (_done || context.reduceMotion) return child;
 
     return VisibilityDetector(
       key: _key,
@@ -92,7 +98,7 @@ class _RevealState extends State<Reveal> with SingleTickerProviderStateMixin {
             ),
           );
         },
-        child: widget.child,
+        child: child,
       ),
     );
   }

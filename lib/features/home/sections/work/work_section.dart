@@ -7,6 +7,7 @@ import '../../../../core/motion/springs.dart';
 import '../../../../core/responsive.dart';
 import '../../../../data/copy.dart';
 import '../../../../theme/app_theme.dart';
+import '../../../../widgets/bullet_list.dart';
 import '../../../../widgets/motion/tilt.dart';
 import '../../../../widgets/motion/visibility_gate.dart';
 import '../../../../widgets/phone_frame.dart';
@@ -428,22 +429,7 @@ class _EntryDetails extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 22),
-          for (final bullet in item.highlights)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 10,
-                    height: 2,
-                    margin: const EdgeInsets.only(top: 12, right: 14),
-                    color: t.signal,
-                  ),
-                  Expanded(child: Text(bullet, style: type.body)),
-                ],
-              ),
-            ),
+          BulletList(bullets: item.highlights),
           const SizedBox(height: 14),
           StoreLinks(
             productName: product.name,

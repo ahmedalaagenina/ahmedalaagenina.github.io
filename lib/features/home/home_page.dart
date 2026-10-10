@@ -17,6 +17,7 @@ import '../../widgets/toast.dart';
 import '../easter_egg/debug_paint.dart';
 import '../intro/intro_overlay.dart';
 import 'sections/about/about_section.dart';
+import 'sections/experience/experience_section.dart';
 import 'sections/footer/footer.dart';
 import 'sections/hero/hero_section.dart';
 import 'sections/work/showcase_item.dart';
@@ -327,6 +328,16 @@ class _HomePageState extends State<HomePage> {
                             items: _showcase,
                             scroll: _scroll,
                             navHeight: NavBar.height,
+                          ),
+                        ),
+                        gap,
+                        _section(
+                          SectionId.experience,
+                          ExperienceSection(
+                            copy: _copy.experience,
+                            common: _copy.common,
+                            roles: Portfolio.roles,
+                            scroll: _scroll,
                           ),
                         ),
                         gap,
