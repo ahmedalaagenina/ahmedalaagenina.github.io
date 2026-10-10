@@ -404,6 +404,8 @@ class _ProductRowState extends State<_ProductRow> {
     final count = product.bullets.length;
     final toggleLabel = _expanded
         ? widget.copy.hideHighlights
+        : count == 1
+        ? widget.copy.showHighlight
         : widget.copy.showHighlights.fill({'n': count});
 
     final title = Column(

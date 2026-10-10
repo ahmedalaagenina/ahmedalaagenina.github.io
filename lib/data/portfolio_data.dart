@@ -737,6 +737,7 @@ abstract final class Portfolio {
       fullTimeLane: 'Full-time',
       partTimeLane: 'Part-time, in parallel',
       showHighlights: 'Show {n} highlights',
+      showHighlight: 'Show highlight',
       hideHighlights: 'Hide highlights',
       appsHeading: 'Apps',
       current: 'Current',

@@ -127,6 +127,7 @@ class ExperienceCopy {
     required this.fullTimeLane,
     required this.partTimeLane,
     required this.showHighlights,
+    required this.showHighlight,
     required this.hideHighlights,
     required this.appsHeading,
     required this.current,
@@ -138,6 +139,9 @@ class ExperienceCopy {
 
   /// `{n}` is the number of bullets.
   final String showHighlights;
+
+  /// Used when there is exactly one bullet.
+  final String showHighlight;
   final String hideHighlights;
   final String appsHeading;
   final String current;

@@ -18,9 +18,14 @@ import '../easter_egg/debug_paint.dart';
 import '../intro/intro_overlay.dart';
 import 'sections/about/about_section.dart';
 import 'sections/experience/experience_section.dart';
+import 'sections/contact/contact_section.dart';
+import 'sections/education/education_section.dart';
 import 'sections/footer/footer.dart';
 import 'sections/hero/hero_section.dart';
 import 'sections/lab/lab_section.dart';
+import 'sections/open_source/open_source_section.dart';
+import 'sections/skills/skill_usage.dart';
+import 'sections/skills/skills_section.dart';
 import 'sections/work/showcase_item.dart';
 import 'sections/work/work_section.dart';
 import 'shell/command_palette.dart';
@@ -51,6 +56,12 @@ class _HomePageState extends State<HomePage> {
   static final List<ShowcaseItem> _showcase = [
     for (final entry in Portfolio.showcase) _resolveShowcase(entry),
   ];
+
+  /// Where each skill appears in the experience text, computed once.
+  static final Map<String, List<String>> _skillUsage = skillUsage(
+    Portfolio.skills,
+    Portfolio.roles,
+  );
 
   static ShowcaseItem _resolveShowcase(ShowcaseEntry entry) {
     final product = Portfolio.product(entry.productId);
@@ -343,6 +354,47 @@ class _HomePageState extends State<HomePage> {
                         ),
                         gap,
                         _section(SectionId.lab, LabSection(copy: _copy.lab)),
+                        gap,
+                        _section(
+                          SectionId.skills,
+                          SkillsSection(
+                            copy: _copy.skills,
+                            groups: Portfolio.skills,
+                            usage: _skillUsage,
+                          ),
+                        ),
+                        gap,
+                        _section(
+                          SectionId.openSource,
+                          OpenSourceSection(
+                            copy: _copy.openSource,
+                            package: Portfolio.openSource,
+                          ),
+                        ),
+                        gap,
+                        _section(
+                          SectionId.education,
+                          EducationSection(
+                            copy: _copy.education,
+                            education: Portfolio.education,
+                            certifications: Portfolio.certifications,
+                            languages: Portfolio.languages,
+                            recognition: Portfolio.recognition,
+                          ),
+                        ),
+                        gap,
+                        _section(
+                          SectionId.contact,
+                          ContactSection(
+                            copy: _copy.contact,
+                            common: _copy.common,
+                            identity: _identity,
+                            onSendEmail: () => Launcher.email(_identity.email),
+                            onWhatsApp: _whatsApp,
+                            onCall: _call,
+                            onDownloadCv: _downloadCv,
+                          ),
+                        ),
                         gap,
                         Footer(
                           identity: _identity,
