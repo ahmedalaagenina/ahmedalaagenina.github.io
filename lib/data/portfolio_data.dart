@@ -499,10 +499,14 @@ abstract final class Portfolio {
       highlights: [1, 0],
     ),
     ShowcaseEntry(
-      productId: 'aramex-champion',
+      productId: 'aramex-freight',
       company: 'Aramex International',
-      icon: 'assets/screens/aramex-champion-icon.webp',
-      tint: 0xFFC26F60,
+      icon: 'assets/screens/aramex-freight-icon.webp',
+      tint: 0xFFDD281D,
+      screens: [
+        'assets/screens/aramex-freight-1.webp',
+        'assets/screens/aramex-freight-2.webp',
+      ],
       highlights: [0, 1],
     ),
     ShowcaseEntry(
@@ -510,6 +514,11 @@ abstract final class Portfolio {
       company: 'Sanad Rewards',
       icon: 'assets/screens/sanad-rewards-icon.webp',
       tint: 0xFFFA5105,
+      screens: [
+        'assets/screens/sanad-rewards-1.webp',
+        'assets/screens/sanad-rewards-2.webp',
+        'assets/screens/sanad-rewards-3.webp',
+      ],
       highlights: [1, 0],
     ),
     ShowcaseEntry(
@@ -526,6 +535,7 @@ abstract final class Portfolio {
       company: 'Alrazi',
       icon: 'assets/screens/stylee-icon.webp',
       tint: 0xFFD08C84,
+      screens: ['assets/screens/stylee-1.webp', 'assets/screens/stylee-2.webp'],
       highlights: [0],
     ),
   ];

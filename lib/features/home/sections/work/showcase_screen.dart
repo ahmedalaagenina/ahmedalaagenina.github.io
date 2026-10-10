@@ -110,14 +110,29 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
                   ? constraints.maxHeight * 0.073
                   : 0,
             ),
-            child: Image(
-              image: _provider(_screens[_index]),
-              fit: BoxFit.cover,
+            // fitWidth, not cover: a screenshot must never lose content at
+            // its sides. Taller shots clip at the bottom like a scrolling
+            // screen; shorter ones fade their cut edge into the app's own
+            // background color (the mask is sized to the image, not the
+            // screen, so the fade always sits on the image's last pixels).
+            child: Align(
               alignment: Alignment.topCenter,
-              gaplessPlayback: true,
-              filterQuality: FilterQuality.medium,
-              width: constraints.maxWidth,
-              height: constraints.maxHeight,
+              child: ShaderMask(
+                blendMode: BlendMode.dstIn,
+                shaderCallback: (bounds) => const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.0, 0.9, 1.0],
+                  colors: [Colors.black, Colors.black, Colors.transparent],
+                ).createShader(bounds),
+                child: Image(
+                  image: _provider(_screens[_index]),
+                  width: constraints.maxWidth,
+                  fit: BoxFit.fitWidth,
+                  gaplessPlayback: true,
+                  filterQuality: FilterQuality.medium,
+                ),
+              ),
             ),
           ),
         ),
