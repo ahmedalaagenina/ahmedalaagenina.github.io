@@ -218,7 +218,11 @@ class ShowcaseEntry {
   const ShowcaseEntry({
     required this.productId,
     required this.company,
+    required this.icon,
+    required this.tint,
     this.screens = const [],
+    this.screensStartBelowStatusBar = false,
+    this.screenBackground = 0xFFFFFFFF,
     this.highlights = const [0],
   });
 
@@ -227,8 +231,21 @@ class ShowcaseEntry {
   /// Company shown above the product name.
   final String company;
 
-  /// Asset paths of screenshots. Empty means a designed placeholder screen.
+  /// App icon asset (the real store artwork).
+  final String icon;
+
+  /// Brand tint (ARGB) used for the designed screen when there are no
+  /// screenshots, and for the phone's glow.
+  final int tint;
+
+  /// Screenshot assets. Empty means a designed cover screen (icon + name),
+  /// never fake UI.
   final List<String> screens;
+
+  /// True when the screenshots were cropped below the status bar, so the
+  /// phone fills the top with [screenBackground].
+  final bool screensStartBelowStatusBar;
+  final int screenBackground;
 
   /// Indexes of the product bullets (or role bullets when the product has
   /// none) shown beside the phone.

@@ -13,6 +13,7 @@ class PhoneFrame extends StatelessWidget {
     required this.screen,
     this.width = 300,
     this.glow = true,
+    this.glowColor,
   });
 
   final Widget screen;
@@ -20,6 +21,9 @@ class PhoneFrame extends StatelessWidget {
 
   /// Soft accent light under the phone. Off for small thumbnails.
   final bool glow;
+
+  /// Glow color; defaults to the accent.
+  final Color? glowColor;
 
   /// Height / width of a current 6.1" phone, rounded.
   static const double aspectRatio = 2.12;
@@ -72,7 +76,7 @@ class PhoneFrame extends StatelessWidget {
                 boxShadow: [
                   if (glow)
                     BoxShadow(
-                      color: t.signal.withValues(
+                      color: (glowColor ?? t.signal).withValues(
                         alpha: context.isDark ? 0.22 : 0.16,
                       ),
                       blurRadius: width * 0.3,
@@ -93,7 +97,9 @@ class PhoneFrame extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    screen,
+                    // Own layer: screen transitions repaint only the
+                    // screen, never the blurred shadows of the frame.
+                    RepaintBoundary(child: screen),
                     // Dynamic island.
                     Align(
                       alignment: Alignment.topCenter,

@@ -19,6 +19,8 @@ import '../intro/intro_overlay.dart';
 import 'sections/about/about_section.dart';
 import 'sections/footer/footer.dart';
 import 'sections/hero/hero_section.dart';
+import 'sections/work/showcase_item.dart';
+import 'sections/work/work_section.dart';
 import 'shell/command_palette.dart';
 import 'shell/mobile_menu.dart';
 import 'shell/nav_bar.dart';
@@ -42,6 +44,28 @@ class _HomePageState extends State<HomePage> {
 
   /// The intro plays once per visit, not every time /links navigates back.
   static bool _introPlayed = false;
+
+  /// Resolves each showcase entry against the experience data once.
+  static final List<ShowcaseItem> _showcase = [
+    for (final entry in Portfolio.showcase) _resolveShowcase(entry),
+  ];
+
+  static ShowcaseItem _resolveShowcase(ShowcaseEntry entry) {
+    final product = Portfolio.product(entry.productId);
+    // Products without their own bullets (e.g. the Aramex apps) share the
+    // role-level bullets.
+    final source = product.bullets.isNotEmpty
+        ? product.bullets
+        : Portfolio.roleOf(entry.productId).bullets;
+    return ShowcaseItem(
+      entry: entry,
+      product: product,
+      highlights: [
+        for (final i in entry.highlights)
+          if (i < source.length) source[i],
+      ],
+    );
+  }
 
   final _scroll = ScrollController();
   final _keys = {for (final id in SectionId.values) id: GlobalKey()};
@@ -293,6 +317,17 @@ class _HomePageState extends State<HomePage> {
                         AboutSection(
                           copy: _copy.about,
                           summary: Portfolio.summary,
+                        ),
+                        gap,
+                        _section(
+                          SectionId.work,
+                          WorkSection(
+                            copy: _copy.work,
+                            common: _copy.common,
+                            items: _showcase,
+                            scroll: _scroll,
+                            navHeight: NavBar.height,
+                          ),
                         ),
                         gap,
                         Footer(
