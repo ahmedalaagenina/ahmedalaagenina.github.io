@@ -25,6 +25,7 @@ class Pressable extends StatefulWidget {
     this.tooltip,
     this.pressScale = 0.96,
     this.focusRadius = Radii.m,
+    this.liveRegion = false,
   });
 
   /// Builds the visuals for the current interaction states
@@ -41,6 +42,11 @@ class Pressable extends StatefulWidget {
   final String? tooltip;
   final double pressScale;
   final double focusRadius;
+
+  /// Announce label changes to screen readers (e.g. "Copied"). The visual
+  /// child is excluded from semantics, so a live region inside it would be
+  /// invisible: put it here instead.
+  final bool liveRegion;
 
   @override
   State<Pressable> createState() => _PressableState();
@@ -148,6 +154,7 @@ class _PressableState extends State<Pressable>
       link: url != null,
       linkUrl: url == null ? null : Uri.tryParse(url),
       enabled: _enabled,
+      liveRegion: widget.liveRegion,
       label: widget.semanticLabel,
       onTap: _enabled ? _activate : null,
       excludeSemantics: true,

@@ -175,7 +175,10 @@ class _EmailCapsuleState extends State<_EmailCapsule> {
     final accent = _copied ? t.success : t.signal;
 
     return Pressable(
-      semanticLabel: '${widget.copy.copyEmail}: ${widget.email}',
+      semanticLabel: _copied
+          ? widget.copy.copied
+          : '${widget.copy.copyEmail}: ${widget.email}',
+      liveRegion: true,
       onTap: _copy,
       pressScale: 0.98,
       focusRadius: Radii.l,
@@ -248,12 +251,9 @@ class _EmailCapsuleState extends State<_EmailCapsule> {
                     ),
                     if (!context.isMobile) ...[
                       const SizedBox(width: 8),
-                      Semantics(
-                        liveRegion: true,
-                        child: Text(
-                          _copied ? widget.copy.copied : widget.copy.copyEmail,
-                          style: type.label.copyWith(color: accent),
-                        ),
+                      Text(
+                        _copied ? widget.copy.copied : widget.copy.copyEmail,
+                        style: type.label.copyWith(color: accent),
                       ),
                     ],
                   ],
