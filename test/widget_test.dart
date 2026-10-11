@@ -5,6 +5,8 @@ import 'package:mycv/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+import 'helpers/load_fonts.dart';
+
 Future<void> pumpHome(WidgetTester tester, Size size) async {
   SharedPreferences.setMockInitialValues({});
   VisibilityDetectorController.instance.updateInterval = Duration.zero;
@@ -19,6 +21,8 @@ Future<void> pumpHome(WidgetTester tester, Size size) async {
 }
 
 void main() {
+  setUpAll(loadAppFonts);
+
   testWidgets('home renders the hero on desktop', (tester) async {
     await pumpHome(tester, const Size(1440, 1000));
     expect(find.text(Portfolio.identity.displayName), findsWidgets);
@@ -30,5 +34,14 @@ void main() {
     await pumpHome(tester, const Size(360, 740));
     expect(tester.takeException(), isNull);
     expect(find.text(Portfolio.copy.hero.oneLiner), findsOneWidget);
+  });
+
+  testWidgets('a phone with 1.5x system text still lays out without overflow', (
+    tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await pumpHome(tester, const Size(390, 844));
+    expect(tester.takeException(), isNull);
   });
 }

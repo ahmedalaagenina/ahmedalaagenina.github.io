@@ -416,7 +416,7 @@ class _EntryDetails extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 14),
-              Text(item.entry.company, style: type.small),
+              Flexible(child: Text(item.entry.company, style: type.small)),
             ],
           ),
           const SizedBox(height: 20),

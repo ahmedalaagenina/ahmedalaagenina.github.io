@@ -58,14 +58,16 @@ class AppButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (icon != null) ...[icon!, const SizedBox(width: 10)],
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontFamily: Fonts.body,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: foreground,
-                    height: 1.2,
+                Flexible(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontFamily: Fonts.body,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: foreground,
+                      height: 1.2,
+                    ),
                   ),
                 ),
               ],

@@ -102,7 +102,15 @@ class _LinkChip extends StatelessWidget {
               children: [
                 _icon(link.kind, compact ? 14 : 15),
                 const SizedBox(width: 8),
-                Text(store, style: context.type.label.copyWith(fontSize: 13.5)),
+                // Fixed-height chip: one line, ellipsized under large text.
+                Flexible(
+                  child: Text(
+                    store,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.type.label.copyWith(fontSize: 13.5),
+                  ),
+                ),
               ],
             ),
           ),
@@ -144,11 +152,15 @@ class _PlainChip extends StatelessWidget {
             children: [
               _icon(link.kind, compact ? 14 : 15),
               const SizedBox(width: 8),
-              Text(
-                name,
-                style: context.type.label.copyWith(
-                  fontSize: 13.5,
-                  color: t.textMuted,
+              Flexible(
+                child: Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.type.label.copyWith(
+                    fontSize: 13.5,
+                    color: t.textMuted,
+                  ),
                 ),
               ),
             ],

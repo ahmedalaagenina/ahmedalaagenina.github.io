@@ -81,7 +81,7 @@ class _Legend extends StatelessWidget {
       children: [
         line,
         const SizedBox(width: 10),
-        Text(label, style: type.small),
+        Flexible(child: Text(label, style: type.small)),
       ],
     );
     return Wrap(

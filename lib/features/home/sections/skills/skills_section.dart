@@ -208,11 +208,13 @@ class _SkillToken extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      skill.name,
-                      style: context.type.label.copyWith(
-                        fontSize: 14,
-                        color: t.text,
+                    Flexible(
+                      child: Text(
+                        skill.name,
+                        style: context.type.label.copyWith(
+                          fontSize: 14,
+                          color: t.text,
+                        ),
                       ),
                     ),
                     // Marks skills that can show where they were used.

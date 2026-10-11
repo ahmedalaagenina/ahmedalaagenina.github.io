@@ -218,10 +218,12 @@ class _HeroSectionState extends State<HeroSection>
                                   color: t.textMuted,
                                 ),
                                 const SizedBox(width: 6),
-                                Text(
-                                  '${widget.copy.locationPrefix} '
-                                  '${widget.identity.location}',
-                                  style: type.small,
+                                Flexible(
+                                  child: Text(
+                                    '${widget.copy.locationPrefix} '
+                                    '${widget.identity.location}',
+                                    style: type.small,
+                                  ),
                                 ),
                               ],
                             ),
